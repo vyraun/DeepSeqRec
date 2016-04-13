@@ -1,0 +1,465 @@
+% This is "sig-alternate.tex" V2.1 April 2013
+% This file should be compiled with V2.5 of "sig-alternate.cls" May 2012
+%
+% This example file demonstrates the use of the 'sig-alternate.cls'
+% V2.5 LaTeX2e document class file. It is for those submitting
+% articles to ACM Conference Proceedings WHO DO NOT WISH TO
+% STRICTLY ADHERE TO THE SIGS (PUBS-BOARD-ENDORSED) STYLE.
+% The 'sig-alternate.cls' file will produce a similar-looking,
+% albeit, 'tighter' paper resulting in, invariably, fewer pages.
+%
+% ----------------------------------------------------------------------------------------------------------------
+% This .tex file (and associated .cls V2.5) produces:
+%       1) The Permission Statement
+%       2) The Conference (location) Info information
+%       3) The Copyright Line with ACM data
+%       4) NO page numbers
+%
+% as against the acm_proc_article-sp.cls file which
+% DOES NOT produce 1) thru' 3) above.
+%
+% Using 'sig-alternate.cls' you have control, however, from within
+% the source .tex file, over both the CopyrightYear
+% (defaulted to 200X) and the ACM Copyright Data
+% (defaulted to X-XXXXX-XX-X/XX/XX).
+% e.g.
+% \CopyrightYear{2007} will cause 2007 to appear in the copyright line.
+% \crdata{0-12345-67-8/90/12} will cause 0-12345-67-8/90/12 to appear in the copyright line.
+%
+% ---------------------------------------------------------------------------------------------------------------
+% This .tex source is an example which *does* use
+% the .bib file (from which the .bbl file % is produced).
+% REMEMBER HOWEVER: After having produced the .bbl file,
+% and prior to final submission, you *NEED* to 'insert'
+% your .bbl file into your source .tex file so as to provide
+% ONE 'self-contained' source file.
+%
+% ================= IF YOU HAVE QUESTIONS =======================
+% Questions regarding the SIGS styles, SIGS policies and
+% procedures, Conferences etc. should be sent to
+% Adrienne Griscti (griscti@acm.org)
+%
+% Technical questions _only_ to
+% Gerald Murray (murray@hq.acm.org)
+% ===============================================================
+%
+% For tracking purposes - this is V2.0 - May 2012
+
+\documentclass{sig-alternate-05-2015}
+\usepackage{amsmath}
+\usepackage{multirow}
+
+\DeclareMathOperator*{\argmin}{\arg\!\min}
+\DeclareMathOperator*{\argmax}{\arg\!\max}
+
+
+\begin{document}
+
+% Copyright
+\setcopyright{acmcopyright}
+%\setcopyright{acmlicensed}
+%\setcopyright{rightsretained}
+%\setcopyright{usgov}
+%\setcopyright{usgovmixed}
+%\setcopyright{cagov}
+%\setcopyright{cagovmixed}
+
+
+
+% DOI
+\doi{10.475/123_4}
+
+% ISBN
+\isbn{123-4567-24-567/08/06}
+
+%Conference
+\conferenceinfo{ACM Recsys '16}{Somewhen and somewhere}
+
+\acmPrice{\$15.00}
+
+%
+% --- Author Metadata here ---
+\conferenceinfo{WOODSTOCK}{'97 El Paso, Texas USA}
+%\CopyrightYear{2007} % Allows default copyright year (20XX) to be over-ridden - IF NEED BE.
+%\crdata{0-12345-67-8/90/01}  % Allows default copyright data (0-89791-88-6/97/05) to be over-ridden - IF NEED BE.
+% --- End of Author Metadata ---
+
+\title{What's Next? Deep Learning for Non-Markovian Sequential Recommendation}
+%\subtitle{[Extended Abstract]
+%\titlenote{A full version of this paper is available as
+%\textit{Author's Guide to Preparing ACM SIG Proceedings Using
+%\LaTeX$2_\epsilon$\ and BibTeX} at
+%\texttt{www.acm.org/eaddress.htm}}}
+
+
+%
+% You need the command \numberofauthors to handle the 'placement
+% and alignment' of the authors beneath the title.
+%
+% For aesthetic reasons, we recommend 'three authors at a time'
+% i.e. three 'name/affiliation blocks' be placed beneath the title.
+%
+% NOTE: You are NOT restricted in how many 'rows' of
+% "name/affiliations" may appear. We just ask that you restrict
+% the number of 'columns' to three.
+%
+% Because of the available 'opening page real-estate'
+% we ask you to refrain from putting more than six authors
+% (two rows with three columns) beneath the article title.
+% More than six makes the first-page appear very cluttered indeed.
+%
+% Use the \alignauthor commands to handle the names
+% and affiliations for an 'aesthetic maximum' of six authors.
+% Add names, affiliations, addresses for
+% the seventh etc. author(s) as the argument for the
+% \additionalauthors command.
+% These 'additional authors' will be output/set for you
+% without further effort on your part as the last section in
+% the body of your article BEFORE References or any Appendices.
+
+\numberofauthors{2} %  in this sample file, there are a *total*
+% of EIGHT authors. SIX appear on the 'first-page' (for formatting
+% reasons) and the remaining two appear in the \additionalauthors section.
+%
+\author{
+% You can go ahead and credit any number of authors here,
+% e.g. one 'row of three' or two rows (consisting of one row of three
+% and a second row of one, two or three).
+%
+% The command \alignauthor (no curly braces needed) should
+% precede each author name, affiliation/snail-mail address and
+% e-mail address. Additionally, tag each line of
+% affiliation/address with \affaddr, and tag the
+% e-mail address with \email.
+%
+% 1st. author
+\alignauthor
+Harold Soh\\
+       \affaddr{University of Toronto}\\
+       \email{harold.soh@utoronto.ca}
+% 2nd. author
+\alignauthor
+Scott Sanner\\
+       \affaddr{University of Toronto}\\
+       \email{scott.sanner@utoronto.ca}
+%% 3rd. author
+%\alignauthor Lars Th{\o}rv{\"a}ld\titlenote{This author is the
+%one who did all the really hard work.}\\
+%       \affaddr{The Th{\o}rv{\"a}ld Group}\\
+%       \affaddr{1 Th{\o}rv{\"a}ld Circle}\\
+%       \affaddr{Hekla, Iceland}\\
+%       \email{larst@affiliation.org}
+%\and  % use '\and' if you need 'another row' of author names
+%% 4th. author
+%\alignauthor Lawrence P. Leipuner\\
+%       \affaddr{Brookhaven Laboratories}\\
+%       \affaddr{Brookhaven National Lab}\\
+%       \affaddr{P.O. Box 5000}\\
+%       \email{lleipuner@researchlabs.org}
+%% 5th. author
+%\alignauthor Sean Fogarty\\
+%       \affaddr{NASA Ames Research Center}\\
+%       \affaddr{Moffett Field}\\
+%       \affaddr{California 94035}\\
+%       \email{fogartys@amesres.org}
+%% 6th. author
+%\alignauthor Charles Palmer\\
+%       \affaddr{Palmer Research Laboratories}\\
+%       \affaddr{8600 Datapoint Drive}\\
+%       \affaddr{San Antonio, Texas 78229}\\
+%       \email{cpalmer@prl.com}
+}
+% There's nothing stopping you putting the seventh, eighth, etc.
+% author on the opening page (as the 'third row') but we ask,
+% for aesthetic reasons that you place these 'additional authors'
+% in the \additional authors block, viz.
+%\additionalauthors{Additional authors: John Smith (The Th{\o}rv{\"a}ld Group,
+%email: {\texttt{jsmith@affiliation.org}}) and Julius P.~Kumquat
+%(The Kumquat Consortium, email: {\texttt{jpkumquat@consortium.net}}).}
+\date{30 July 1999}
+% Just remember to make sure that the TOTAL number of authors
+% is the number that will appear on the first page PLUS the
+% number that will appear in the \additionalauthors section.
+
+\maketitle
+\begin{abstract}
+Real-world recommender systems are often required to make predictions not just of individual items but rather sequences. For example, suggested retail purchases are based on past transactions, and relevant websites predictions on browser histories. Existing sequential recommendation methods, i.e., Markov chain (MC) models and tensor-factorized versions, are constructed under the Markov assumption, which is untenable in many practical applications. In this paper, we propose and evaluate a deep learning model for sequential item recommendation that uses gated recurrent cells to capture long-term dependencies. Consequently, the model constructs embedding contexts that jointly capture user characteristics and purchase/rating histories. In a comparative evaluation over multiple datasets in domains ranging from web to education, we demonstrate that the non-Markovian aspect of our model results in improved novel item recommendation.  
+\end{abstract}
+
+
+%
+% The code below should be generated by the tool at
+% http://dl.acm.org/ccs.cfm
+% Please copy and paste the code instead of the example below. 
+%
+\begin{CCSXML}
+<ccs2012>
+ <concept>
+  <concept_id>10010520.10010553.10010562</concept_id>
+  <concept_desc>Computer systems organization~Embedded systems</concept_desc>
+  <concept_significance>500</concept_significance>
+ </concept>
+ <concept>
+  <concept_id>10010520.10010575.10010755</concept_id>
+  <concept_desc>Computer systems organization~Redundancy</concept_desc>
+  <concept_significance>300</concept_significance>
+ </concept>
+ <concept>
+  <concept_id>10010520.10010553.10010554</concept_id>
+  <concept_desc>Computer systems organization~Robotics</concept_desc>
+  <concept_significance>100</concept_significance>
+ </concept>
+ <concept>
+  <concept_id>10003033.10003083.10003095</concept_id>
+  <concept_desc>Networks~Network reliability</concept_desc>
+  <concept_significance>100</concept_significance>
+ </concept>
+</ccs2012>  
+\end{CCSXML}
+
+\ccsdesc[500]{Computer systems organization~Embedded systems}
+\ccsdesc[300]{Computer systems organization~Redundancy}
+\ccsdesc{Computer systems organization~Robotics}
+\ccsdesc[100]{Networks~Network reliability}
+
+
+%
+% End generated code
+%
+
+%
+%  Use this command to print the description
+%
+\printccsdesc
+
+% We no longer use \terms command
+%\terms{Theory}
+
+\keywords{Collaborative Filtering; Sequential Recommendation; Bayesian Model Averaging}
+
+\section{Introduction}
+\paragraph{Why is Sequential recommendation is important? examples?}
+
+
+\paragraph{Existing methods?} 
+\begin{itemize}
+\item Tensor factorization: non-convex, requires tuning (hyperparameters, latent dimensionality), difficult for online use.
+\item Nearest Neighbor methods via specialized similarity scores for time series: ad-hoc similarity scores, 
+\end{itemize}
+
+\paragraph{Our contributions?}
+
+
+\paragraph{How is it novel?} 
+
+\paragraph{Main messages?}
+
+\paragraph{Paper organization?}
+
+
+\section{Background and Related Work}
+What is the formal definition of the work?
+
+What existing methods are there?
+\begin{itemize}
+\item Rendle, S., Freudenthaler, C., Schmidt-Thieme, L. (2010). Factorizing personalized Markov chains for next-basket recommendation. Proceedings of the 19th International Conference on World Wide Web - WWW'10, 811.
+\item Feng, S., Li, X., Zeng, Y., Cong, G., Chee, Y. M., Yuan, Q. (2015). Personalized Ranking Metric Embedding for Next New POI Recommendation. IJCAI International Joint Conference on Artificial Intelligence, (IJCAI), 2069-2075.
+\item Yap, G. E., Li, X. L., Yu, P. S. (2012). Effective next-items recommendation via personalized sequential pattern mining. Lecture Notes in Computer Science (Including Subseries Lecture Notes in Artificial Intelligence and Lecture Notes in Bioinformatics), 7239 LNCS(PART 2), 48-64.
+\item Cheng, C., Yang, H., Lyu, M. R., King, I. (2013). Where you like to go next: Successive point-of-interest recommendation. IJCAI International Joint Conference on Artificial Intelligence, 2605-2611.
+\end{itemize}
+ 
+\section{Deep Sequential Recommendation}
+
+Problem formulation. Challenges when applying deep learning. Large itemsets. 
+
+\subsection{Model Architecture}
+
+\subsection{Candidate Sampling}
+Sampled softmax vs. Noise Constrastive Estimation (NCE)
+In our runs, sampled softmax performed better. 
+
+Given a context, i.e., a user $u$ and previous purchases $h_{u,t}$, we would like to recommend a new item $i$. In typical classification scenarios, the item set $I$ is relatively small, which permits for straightforward model training using standard loss functions. However, in recommendation scenarios, the item set $I$ is usually very large making it infeasible to compute typical loss functions. To address this problem, we use a technique termed as ``candidate sampling'' whereby the loss is evaluated against a small set of candidate items. 
+
+Given our context $x_{u,t} = (u, h_{u,t})$, we would like to train our model to predict relative log probabilities of an item, $F(x,y) = \log p(y|x_{u,t}) + C(x) \propto \log p(y|x_{u,t})$ where $C(x)$ does not depend on $y$. The canonical log softmax loss is given by:
+\begin{align}
+	\mathcal{L}_{\textsc{sm}} = \sum_j -H(x_{u,t}, i_{t+1}) + \log \left( \sum_{i'} \exp H(x_{u,t}, i') \right)
+\end{align}
+where 
+
+
+%\subsection{Context Sampling for Baskets}
+%We use a simple technique by sampling traces from baskets. 
+
+
+\subsection{Relationship to Existing Methods}
+Relationship to KNN? 
+Relationship to Matrix Factorization? If we don't use LSTMs and assume a dual dot-product at the top layer, that is FPMC. But that's a stretch.  
+
+
+
+\section{Experiments}
+
+\subsection{Novel Item Recommendation}
+In this experiment, we evaluate DSR against the simple Markov chain model and tensor factorization (FPMC) on last item prediction. The set up is very similar to that presented in Rendle's work, i.e., give the purchase history of |U| users, predict the last basket purchased. In our datasets, the basket size is one, so, we predict the last item purchased. Similar to Rendle's experiment, each user's purchase history was stripped of duplicate items and we required a minimum number of ten purchases. 
+
+To evaluate the performance of each method, we report the half-life utility (HLU), top-5 precision, recall and F1 scores. 
+
+
+\begin{table}
+\begin{center} 
+\begin{tabular}{ |l|l|c|c|c|c|}
+\hline
+\multirow{2}{*}{\textbf{Dataset}} & \multirow{2}{*}{\textbf{Score}} & \multicolumn{4}{ |c| }{\textbf{Method}} \\  \cline{3-6}
+& & \textbf{MC} & \textbf{FPMC} & \textbf{ANN} & \textbf{LSTM} \\
+\hline
+ \multirow{4}{*}{gowalla} 
+ & HLU & \textbf{0.160} & 0.133 & 0.130 & 0.051 \\
+ & Prec & \textbf{0.033} & 0.025  & 0.027 & 0.013 \\
+ & Rec & \textbf{0.166} & 0.124 & 0.136 & 0.063 \\
+ & F1 & \textbf{0.055} & 0.041 & 0.045 & 0.021 \\
+ \hline
+ \multirow{4}{*}{msweb} 
+ & HLU & 0.485  & 0.522  & 0.489 & \textbf{0.566} \\
+ & Prec & 0.107 & 0.109 & 0.106 & \textbf{0.124} \\
+ & Rec & 0.537 & 0.546 & 0.528 & \textbf{0.621} \\
+ & F1 & 0.179 & 0.182 & 0.176 & \textbf{0.207} \\
+ \hline
+ \multirow{4}{*}{assist15} 
+ & HLU & 0.440 & 0.438  & 0.412 & \textbf{0.535} \\
+ & Prec & 0.094 & 0.092  & 0.086 & \textbf{0.113} \\
+ & Rec & 0.471 & 0.458  & 0.458 & \textbf{0.568} \\
+ & F1 & 0.157 & 0.153 & 0.430 & \textbf{0.189} \\
+ \hline
+  \multirow{4}{*}{retail} 
+ & HLU & 0.005 & 0.019  & -1.000 & -1.000 \\
+ & Prec & 0.005 & 0.007 & -1.000 & -1.000 \\
+ & Rec & 0.004 & 0.015 & -1.000 & -1.000 \\
+ & F1 & 0.004 & 0.010 & -1.000 & -1.000 \\
+ \hline
+\hline
+\end{tabular}
+\caption{Novel Item Recommendation}
+\end{center} 
+\end{table}
+
+
+%
+%\begin{table}
+%\begin{center} 
+%\caption{User Split Test}
+%\begin{tabular}{ |l|l|c|c|c|}
+%\hline
+%\multirow{2}{*}{\textbf{Dataset}} & \multirow{2}{*}{\textbf{Score}} & \multicolumn{3}{ |c| }{\textbf{Method}} \\  \cline{3-5}
+%& & \textbf{MC} & \textbf{BMA} & \textbf{BMA-Gb} \\
+%\hline
+% \multirow{4}{*}{gowalla} 
+% & hlu & 0.160 & 0.162 & \textbf{0.165} \\
+% & prec & 0.035 & 0.035 & \textbf{0.036 }\\
+% & rec & 0.174 & 0.176 & \textbf{0.181} \\
+% & f1 & 0.058 & 0.059 & \textbf{0.060} \\
+% \hline
+% \multirow{4}{*}{msweb} 
+%  & hlu & 0.541 & \textbf{0.545} & 0.540 \\
+% & prec & 0.116 & \textbf{0.116} & 0.115 \\
+% & rec & 0.581 & \textbf{0.582} & 0.577 \\
+% & f1 & 0.194 & \textbf{0.194} & 0.192 \\
+% \hline
+% \multirow{4}{*}{assist15} 
+% & hlu & 0.372 & \textbf{0.453} & 0.375 \\
+% & prec & 0.076 & \textbf{0.095} & 0.077 \\
+% & rec & 0.381 & \textbf{0.473} & 0.383 \\
+% & f1 & 0.127 & \textbf{0.158} & 0.128 \\
+% \hline
+%%  \multirow{4}{*}{retail} 
+%% & HLU & 0.005  & 0.019 & -1.000 \\
+%% & Prec & 0.005  & 0.007 & -1.000 \\
+%% & Rec & 0.004  & 0.015 & -1.000 \\
+%% & F1 & 0.004  & 0.010 & -1.000 \\
+%% \hline
+%\hline
+%\end{tabular}
+%\end{center} 
+%\end{table}
+
+\subsection{Large Scale Experiment}
+Need a Large Scale Experiment here! 
+
+
+\section{Discussion}
+Potential Extensions
+
+\section{Summary and Conclusions}
+
+
+%ACKNOWLEDGMENTS are optional
+%\section{Acknowledgments}
+%This section is optional; it is a location for you
+%to acknowledge grants, funding, editing assistance and
+%what have you.  In the present case, for example, the
+%authors would like to thank Gerald Murray of ACM for
+%his help in codifying this \textit{Author's Guide}
+%and the \textbf{.cls} and \textbf{.tex} files that it describes.
+
+%
+% The following two commands are all you need in the
+% initial runs of your .tex file to
+% produce the bibliography for the citations in your paper.
+\bibliographystyle{abbrv}
+\bibliography{sigproc}  % sigproc.bib is the name of the Bibliography in this case
+% You must have a proper ".bib" file
+%  and remember to run:
+% latex bibtex latex latex
+% to resolve all references
+%
+% ACM needs 'a single self-contained file'!
+%
+%APPENDICES are optional
+%\balancecolumns
+%\appendix
+%%Appendix A
+%\section{Headings in Appendices}
+%The rules about hierarchical headings discussed above for
+%the body of the article are different in the appendices.
+%In the \textbf{appendix} environment, the command
+%\textbf{section} is used to
+%indicate the start of each Appendix, with alphabetic order
+%designation (i.e. the first is A, the second B, etc.) and
+%a title (if you include one).  So, if you need
+%hierarchical structure
+%\textit{within} an Appendix, start with \textbf{subsection} as the
+%highest level. Here is an outline of the body of this
+%document in Appendix-appropriate form:
+%\subsection{Introduction}
+%\subsection{The Body of the Paper}
+%\subsubsection{Type Changes and  Special Characters}
+%\subsubsection{Math Equations}
+%\paragraph{Inline (In-text) Equations}
+%\paragraph{Display Equations}
+%\subsubsection{Citations}
+%\subsubsection{Tables}
+%\subsubsection{Figures}
+%\subsubsection{Theorem-like Constructs}
+%\subsubsection*{A Caveat for the \TeX\ Expert}
+%\subsection{Conclusions}
+%\subsection{Acknowledgments}
+%\subsection{Additional Authors}
+%This section is inserted by \LaTeX; you do not insert it.
+%You just add the names and information in the
+%\texttt{{\char'134}additionalauthors} command at the start
+%of the document.
+%\subsection{References}
+%Generated by bibtex from your ~.bib file.  Run latex,
+%then bibtex, then latex twice (to resolve references)
+%to create the ~.bbl file.  Insert that ~.bbl file into
+%the .tex source file and comment out
+%the command \texttt{{\char'134}thebibliography}.
+%% This next section command marks the start of
+%% Appendix B, and does not continue the present hierarchy
+%\section{More Help for the Hardy}
+%The sig-alternate.cls file itself is chock-full of succinct
+%and helpful comments.  If you consider yourself a moderately
+%experienced to expert user of \LaTeX, you may find reading
+%it useful but please remember not to change it.
+%\balancecolumns % GM June 2007
+% That's all folks!
+\end{document}
