@@ -84,7 +84,7 @@
 %\crdata{0-12345-67-8/90/01}  % Allows default copyright data (0-89791-88-6/97/05) to be over-ridden - IF NEED BE.
 % --- End of Author Metadata ---
 
-\title{What's Next? Deep Learning for Non-Markovian Sequential Recommendation}
+\title{Deep Learning for Long-term Dependencies in Sequential Recommendation}
 %\subtitle{[Extended Abstract]
 %\titlenote{A full version of this paper is available as
 %\textit{Author's Guide to Preparing ACM SIG Proceedings Using
@@ -183,7 +183,7 @@ Scott Sanner\\
 
 \maketitle
 \begin{abstract}
-Real-world recommender systems are often required to make predictions not just of individual items but rather sequences. For example, suggested retail purchases are based on past transactions, and relevant websites predictions on browser histories. Existing sequential recommendation methods, i.e., Markov chain (MC) models and tensor-factorized versions, are constructed under the Markov assumption, which is untenable in many practical applications. In this paper, we propose and evaluate a deep learning model for sequential item recommendation that uses gated recurrent cells to capture long-term dependencies. Consequently, the model constructs embedding contexts that jointly capture user characteristics and purchase/rating histories. In a comparative evaluation over multiple datasets in domains ranging from web to education, we demonstrate that the non-Markovian aspect of our model results in improved novel item recommendation.  
+Real-world recommender systems are often required to make predictions not just of individual items but rather sequences. For example, retails products are suggested based on past transactions, and relevant websites on viewing histories. Existing sequential recommendation methods, i.e., Markov chain (MC) models and tensor-factorized versions, are constructed under the Markov assumption, which is untenable in many practical applications. In this paper, we propose and evaluate a deep learning model for sequential item recommendation that uses gated recurrent memory cells to capture long-term dependencies. Consequently, the model constructs embedding contexts that jointly capture user characteristics and purchase/rating histories. In a comparative evaluation over multiple datasets in domains ranging from web to education, we demonstrate that the non-Markovian aspect of our model results in improved novel item recommendations.  
 \end{abstract}
 
 
@@ -274,6 +274,22 @@ Problem formulation. Challenges when applying deep learning. Large itemsets.
 
 \subsection{Model Architecture}
 
+\begin{figure}
+\centering
+	\includegraphics[width=7cm]{images/ModelArch}
+	\caption{Caption}
+	\label{fig:ModelArch}
+\end{figure}
+
+
+\begin{figure}
+\centering
+	\includegraphics[width=8cm]{images/GRU}
+	\caption{Caption}
+	\label{fig:GRU}
+\end{figure}
+
+
 \subsection{Candidate Sampling}
 Sampled softmax vs. Noise Constrastive Estimation (NCE)
 In our runs, sampled softmax performed better. 
@@ -313,10 +329,10 @@ To evaluate the performance of each method, we report the half-life utility (HLU
 & & \textbf{MC} & \textbf{FPMC} & \textbf{ANN} & \textbf{LSTM} \\
 \hline
  \multirow{4}{*}{gowalla} 
- & HLU & \textbf{0.160} & 0.133 & 0.130 & -1.000 \\
- & Prec & \textbf{0.033} & 0.025  & 0.027 & -1.000 \\
- & Rec & \textbf{0.166} & 0.124 & 0.136 & -1.000 \\
- & F1 & \textbf{0.055} & 0.041 & 0.045 & -1.000 \\
+ & HLU & \textbf{0.160} & 0.133 & 0.130 & 0.051 \\
+ & Prec & \textbf{0.033} & 0.025  & 0.027 & 0.013 \\
+ & Rec & \textbf{0.166} & 0.124 & 0.136 &  0.066 \\
+ & F1 & \textbf{0.055} & 0.041 & 0.045 & 0.022 \\
  \hline
  \multirow{4}{*}{msweb} 
  & HLU & 0.485  & 0.522  & 0.489 & \textbf{0.566} \\
@@ -329,12 +345,6 @@ To evaluate the performance of each method, we report the half-life utility (HLU
  & Prec & 0.094 & 0.092  & 0.086 & \textbf{0.113} \\
  & Rec & 0.471 & 0.458  & 0.458 & \textbf{0.568} \\
  & F1 & 0.157 & 0.153 & 0.430 & \textbf{0.189} \\
- \hline
-  \multirow{4}{*}{retail} 
- & HLU & 0.005 & 0.019  & -1.000 & -1.000 \\
- & Prec & 0.005 & 0.007 & -1.000 & -1.000 \\
- & Rec & 0.004 & 0.015 & -1.000 & -1.000 \\
- & F1 & 0.004 & 0.010 & -1.000 & -1.000 \\
  \hline
 \hline
 \end{tabular}
