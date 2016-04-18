@@ -277,7 +277,7 @@ Problem formulation. Challenges when applying deep learning. Large itemsets.
 \begin{figure}
 \centering
 	\includegraphics[width=7cm]{images/ModelArch}
-	\caption{Caption}
+	\caption{Deep Sequential Recommendation Recurrent Neural Network Model Architecture. At a high-level, the model comprises three basic components that are responsible for (i) encoding the input as real vectors (embeddings), (ii) compressing the input sequence as a ``memory state'', and (iii) making a final selection/ranking of next items to be recommended (hidden layers and classifier). The entire model is trained via back-propagation using candidate sampling. See text for details.}
 	\label{fig:ModelArch}
 \end{figure}
 
@@ -285,7 +285,7 @@ Problem formulation. Challenges when applying deep learning. Large itemsets.
 \begin{figure}
 \centering
 	\includegraphics[width=8cm]{images/GRU}
-	\caption{Caption}
+	\caption{The model's memory is composed of multiple Gated Recurrent Units (GRU) cells that selectively update or reset their hidden states via two gates.  The update gate $z$ determines whether the internal state $h$ is replaced by a new hidden state $\tilde{h}$. The reset gate $r$ controls whether to disregard the previous hidden state. Although sometimes shown as discrete gates (as above), the updates/resets are weighted averages. An interaction history is fed to each cell each item at a time, and the final state is relayed to higher layers. See text for  details. }
 	\label{fig:GRU}
 \end{figure}
 
