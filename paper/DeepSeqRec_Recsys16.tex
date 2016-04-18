@@ -48,9 +48,12 @@
 \documentclass{sig-alternate-05-2015}
 \usepackage{amsmath}
 \usepackage{multirow}
+\usepackage{natbib}
+\usepackage{url}
 
 \DeclareMathOperator*{\argmin}{\arg\!\min}
 \DeclareMathOperator*{\argmax}{\arg\!\max}
+\newcommand{\mat}[1]{\mathbf{#1}}
 
 
 \begin{document}
@@ -183,7 +186,7 @@ Scott Sanner\\
 
 \maketitle
 \begin{abstract}
-Real-world recommender systems are often required to make predictions not just of individual items but rather sequences. For example, retails products are suggested based on past transactions, and relevant websites on viewing histories. Existing sequential recommendation methods, i.e., Markov chain (MC) models and tensor-factorized versions, are constructed under the Markov assumption, which is untenable in many practical applications. In this paper, we propose and evaluate a deep learning model for sequential item recommendation that uses gated recurrent memory cells to capture long-term dependencies. Consequently, the model constructs embedding contexts that jointly capture user characteristics and purchase/rating histories. In a comparative evaluation over multiple datasets in domains ranging from web to education, we demonstrate that the non-Markovian aspect of our model results in improved novel item recommendations.  
+Real-world recommender systems are often required to make predictions not just of individual items but rather sequences. For example, retails products are suggested based on past transactions, and relevant websites on viewing histories. Existing sequential recommendation methods, i.e., Markov chain (MC) models and tensor-factorized versions, are constructed under the Markov assumption, which is untenable in many practical applications. In this paper, we propose and evaluate a deep learning model for sequential item recommendation that uses gated recurrent memory cells to capture long-term dependencies. Consequently, the model constructs embedding contexts that jointly capture user characteristics and purchase/rating histories. In a comparative evaluation over  datasets in web and education, we demonstrate that the non-Markovian aspect of our model results in improved novel item recommendations.  
 \end{abstract}
 
 
@@ -277,24 +280,46 @@ Problem formulation. Challenges when applying deep learning. Large itemsets.
 \begin{figure}
 \centering
 	\includegraphics[width=7cm]{images/ModelArch}
-	\caption{Deep Sequential Recommendation Recurrent Neural Network Model Architecture. At a high-level, the model comprises three basic components that are responsible for (i) encoding the input as real vectors (embeddings), (ii) compressing the input sequence as a ``memory state'', and (iii) making a final selection/ranking of next items to be recommended (hidden layers and classifier). The entire model is trained via back-propagation using candidate sampling. See text for details.}
+	\caption{Model Architecture for Deep Sequential Recommendation. At a high-level, the model comprises three basic component layers responsible for (i) encoding the input as real vectors (embeddings), (ii) compressing the input sequence as a ``memory state'', and (iii) making a final selection/ranking of next items to be recommended (hidden layers and classifier). The entire model is trained via back-propagation using candidate sampling. See text for details.}
 	\label{fig:ModelArch}
 \end{figure}
 
+A high-level overview of our model architecture is shown in Fig. \ref{fig:ModelArch}. 
 
+\subsection{Memory: Gated Recurrent Units}
 \begin{figure}
 \centering
 	\includegraphics[width=8cm]{images/GRU}
-	\caption{The model's memory is composed of multiple Gated Recurrent Units (GRU) cells that selectively update or reset their hidden states via two gates.  The update gate $z$ determines whether the internal state $h$ is replaced by a new hidden state $\tilde{h}$. The reset gate $r$ controls whether to disregard the previous hidden state. Although sometimes shown as discrete gates (as above), the updates/resets are weighted averages. An interaction history is fed to each cell each item at a time, and the final state is relayed to higher layers. See text for  details. }
+	\caption{The model's memory is composed of Gated Recurrent Units (GRU) cells that selectively update or reset their hidden states via two gates. An interaction history is fed an item at a time into the cell and the update gate $z$ determines whether the internal state $h$ is replaced by a new hidden state $\tilde{h}$. The reset gate $r$ controls whether to disregard the previous hidden state. Although sometimes shown as discrete gates (as above), the updates/resets are weighted averages using parameters learnt from data. After the history is fed, and the final state is relayed to higher layers. See text for  details. }
 	\label{fig:GRU}
 \end{figure}
 
+In our model, we use the Gated Recurrent Unit (GRU)~\cite{Cho2014} (Fig. \ref{fig:GRU}), a streamlined variant of Long Short-Term Memory (LSTM)~\cite{Hochreiter1997}, that has become increasingly popular due to its simplicity and performance~\cite{jozefowicz2015empirical}. In traditional RNN models, a cell lacked control over the evolution of its hidden state. In contrast, the GRU learns to operate two internal structures---the update and reset gates---that allow it to control what to remember and forget. More formally, consider that a cell $j$ has state $h_{t-1}^{(j)}$ and receives a new input $\mathbf{x}_t$. The cell's updated internal state is given by
+\begin{align}
+	h_t^{(j)} = (1-z_t^{(j)})h^{(j)}_{t-1} + z_t^{(j)}\tilde{h}_{t}^{(j)},
+\end{align}
+which is a weighted average of its previous state and a  candidate activation $\tilde{h}_{t}^{(j)}$. This interpolation is controlled by the update gate $z_t^{(j)}$, which relies on two learnt parameters $\mat{W}_z$ and $\mat{U}_z$,
+\begin{align}
+	z_t^{(j)} = \textrm{sigm}\big([\mat{W}_z\mat{x}_{t} + \mat{U}_z\mat{h}_{t-1})]_j\big).
+\end{align}
+The candidate activation $\tilde{h}_{t}^{(j)}$ is computed via
+\begin{align}
+	\tilde{h}_{t}^{(j)} = \mathrm{tanh}([\mat{W}\mat{x}_t + \mat{U}(\mat{r}_t \odot \mat{h}_{t-1})]_j )
+\end{align}
+where $\odot$ denotes element-wise multiplication. The cell's reset gate $r^{(j)}_t = [\mat{r}_t]_j$ is also determined by two learnt matrices $\mat{W}_r$ and $\mat{U}_r$,
+\begin{align}
+	r^{(j)}_t = \textrm{sigm}\big([\mat{W}_r\mat{x}_{t} + \mat{U}_r\mat{h}_{t-1})]_j\big)
+\end{align}
+The previous hidden state is effectively dropped when the reset gate's value nears zero, and as such, cells that learn short-term dependencies will have active reset gates. In comparison, cells that learn to model long-term dependencies will have active update gates~\cite{Cho2014}. 
 
-\subsection{Candidate Sampling}
-Sampled softmax vs. Noise Constrastive Estimation (NCE)
-In our runs, sampled softmax performed better. 
+   
+\subsection{Training via Candidate Sampling}
+Given a user $u$ and previous interactions $a_{u,t}$, we would like to train our model to recommend an item $i \in I$. Adopting the classification perspective allows us to train our model via backpropagation using standard techniques. However, this approach is complicated by large item sets $I$ common in recommendation settings; it becomes infeasible to compute typical loss functions, such as the softmax and logistic losses. 
 
-Given a context, i.e., a user $u$ and previous purchases $h_{u,t}$, we would like to recommend a new item $i$. In typical classification scenarios, the item set $I$ is relatively small, which permits for straightforward model training using standard loss functions. However, in recommendation scenarios, the item set $I$ is usually very large making it infeasible to compute typical loss functions. To address this problem, we use a technique termed as ``candidate sampling'' whereby the loss is evaluated against a small set of candidate items. 
+To address this problem, we use a technique termed as \emph{candidate sampling}~\cite{TFCandidateSampling} whereby the loss is evaluated against a small set of candidate or contrastive classes instead of over the entire set $I$. In our preliminary experiments, the sampled softmax~\cite{Jean2015} worked best (compared to Noise Contrastive Estimation and the sampled logistic) and is given by
+\begin{align}
+	\mathcal{L}_{\textsc{sm}}
+\end{align}
 
 Given our context $x_{u,t} = (u, h_{u,t})$, we would like to train our model to predict relative log probabilities of an item, $F(x,y) = \log p(y|x_{u,t}) + C(x) \propto \log p(y|x_{u,t})$ where $C(x)$ does not depend on $y$. The canonical log softmax loss is given by:
 \begin{align}
@@ -303,54 +328,61 @@ Given our context $x_{u,t} = (u, h_{u,t})$, we would like to train our model to 
 where 
 
 
-%\subsection{Context Sampling for Baskets}
-%We use a simple technique by sampling traces from baskets. 
-
-
-\subsection{Relationship to Existing Methods}
-Relationship to KNN? 
-Relationship to Matrix Factorization? If we don't use LSTMs and assume a dual dot-product at the top layer, that is FPMC. But that's a stretch.  
-
-
-
 \section{Experiments}
+In this section, we report on experiments comparing the DRNN to a baseline Markov chain (MC) and the tensor Factorized Personalized Markov Chain (FPMC) models~\cite{Rendle2010}. In addition, we constructed a deep neural network (DNN) identical to the DRNN, but without the memory cells; this allowed us to isolate the effect of capturing temporal dependencies greater than the first-order on the quality of recommendations.
 
-\subsection{Novel Item Recommendation}
-In this experiment, we evaluate DSR against the simple Markov chain model and tensor factorization (FPMC) on last item prediction. The set up is very similar to that presented in Rendle's work, i.e., give the purchase history of |U| users, predict the last basket purchased. In our datasets, the basket size is one, so, we predict the last item purchased. Similar to Rendle's experiment, each user's purchase history was stripped of duplicate items and we required a minimum number of ten purchases. 
+\subsection{Experimental Setup}
+We adopt the experimental setup outlined in \cite{Rendle2010}; given the interaction history, our methods were tasked to predict the last \emph{unique} item in the sequence. We used two moderately-sized datasets: the Microsoft Web (MSWeb) and the Assistments'15 educational datasets. Following \cite{Rendle2010}, users that did not interact with at least 10 items were dropped. 
 
-To evaluate the performance of each method, we report the half-life utility (HLU), top-5 precision, recall and F1 scores. 
+To test the variability of the methods under slightly different conditions, we performed a variant of 10-fold cross-validation where 90\% of the \emph{last} items were used for testing and 10\% for validation. Early stopping was used when training FPMC, DNN and DRNN, whereby training was halted with the HLU computed on the validation set did not improve after 1000 positive training samples. A maximum of $2\times 10^6$ iterations was permitted for FPMC, and $2\times 10^5$ iterations (100-sample mini-batches) for both DNN and DRNN. 
+
+As performance scores, we computed four standard metrics: the Breese score or Half-Life Utility (HLU), Top-5 F1, precision, and recall. 
 
 
-\begin{table}
-\begin{center} 
-\begin{tabular}{ |l|l|c|c|c|c|}
-\hline
-\multirow{2}{*}{\textbf{Dataset}} & \multirow{2}{*}{\textbf{Score}} & \multicolumn{4}{ |c| }{\textbf{Method}} \\  \cline{3-6}
-& & \textbf{MC} & \textbf{FPMC} & \textbf{ANN} & \textbf{LSTM} \\
-\hline
- \multirow{4}{*}{gowalla} 
- & HLU & \textbf{0.160} & 0.133 & 0.130 & 0.051 \\
- & Prec & \textbf{0.033} & 0.025  & 0.027 & 0.013 \\
- & Rec & \textbf{0.166} & 0.124 & 0.136 &  0.066 \\
- & F1 & \textbf{0.055} & 0.041 & 0.045 & 0.022 \\
- \hline
- \multirow{4}{*}{msweb} 
- & HLU & 0.485  & 0.522  & 0.489 & \textbf{0.566} \\
- & Prec & 0.107 & 0.109 & 0.106 & \textbf{0.124} \\
- & Rec & 0.537 & 0.546 & 0.528 & \textbf{0.621} \\
- & F1 & 0.179 & 0.182 & 0.176 & \textbf{0.207} \\
- \hline
- \multirow{4}{*}{assist15} 
- & HLU & 0.440 & 0.438  & 0.412 & \textbf{0.535} \\
- & Prec & 0.094 & 0.092  & 0.086 & \textbf{0.113} \\
- & Rec & 0.471 & 0.458  & 0.458 & \textbf{0.568} \\
- & F1 & 0.157 & 0.153 & 0.430 & \textbf{0.189} \\
- \hline
-\hline
-\end{tabular}
-\caption{Novel Item Recommendation}
-\end{center} 
-\end{table}
+
+\subsection{Performance Results}
+\begin{figure}
+\includegraphics[width=8cm]{images/PerfBoxplots}		
+\caption{Performance scores on the MSWeb and Assistments'15 datasets. In both datasets, the DRNN achieves the best scores,  suggesting the importance of long-term dependencies for the sequential recommendation task.}
+\label{fig:PerfResults}
+\end{figure}
+Summarized scores achieved by the compared methods are shown in Fig. \ref{fig:PerfResults}.
+
+\subsection{Embedding Size Effects}
+
+\subsection{Length of Sequences}
+
+%
+%\begin{table}
+%\begin{center} 
+%\begin{tabular}{ |l|l|c|c|c|c|}
+%\hline
+%\multirow{2}{*}{\textbf{Dataset}} & \multirow{2}{*}{\textbf{Score}} & \multicolumn{4}{ |c| }{\textbf{Method}} \\  \cline{3-6}
+%& & \textbf{MC} & \textbf{FPMC} & \textbf{ANN} & \textbf{LSTM} \\
+%\hline
+% \multirow{4}{*}{gowalla} 
+% & HLU & \textbf{0.160} & 0.133 & 0.130 & 0.051 \\
+% & Prec & \textbf{0.033} & 0.025  & 0.027 & 0.013 \\
+% & Rec & \textbf{0.166} & 0.124 & 0.136 &  0.066 \\
+% & F1 & \textbf{0.055} & 0.041 & 0.045 & 0.022 \\
+% \hline
+% \multirow{4}{*}{msweb} 
+% & HLU & 0.485  & 0.522  & 0.489 & \textbf{0.566} \\
+% & Prec & 0.107 & 0.109 & 0.106 & \textbf{0.124} \\
+% & Rec & 0.537 & 0.546 & 0.528 & \textbf{0.621} \\
+% & F1 & 0.179 & 0.182 & 0.176 & \textbf{0.207} \\
+% \hline
+% \multirow{4}{*}{assist15} 
+% & HLU & 0.440 & 0.438  & 0.412 & \textbf{0.535} \\
+% & Prec & 0.094 & 0.092  & 0.086 & \textbf{0.113} \\
+% & Rec & 0.471 & 0.458  & 0.458 & \textbf{0.568} \\
+% & F1 & 0.157 & 0.153 & 0.430 & \textbf{0.189} \\
+% \hline
+%\hline
+%\end{tabular}
+%\caption{Novel Item Recommendation}
+%\end{center} 
+%\end{table}
 
 
 %

@@ -1,59 +1,102 @@
-@ARTICLE{bowman:reasoning,
-	AUTHOR = "Mic Bowman and Saumya K. Debray and Larry L. Peterson",
-	TITLE = "Reasoning About Naming Systems",
-	JOURNAL = "ACM Trans. Program. Lang. Syst.",
-	VOLUME = {15},
-	NUMBER = {5},
-	PAGES = {795-825},
-	MONTH = "November",
-	YEAR = {1993}	}
+@article{Cho2014,
+abstract = {In this paper, we propose a novel neural network model called RNN Encoder--Decoder that consists of two recurrent neural networks (RNN). One RNN encodes a sequence of symbols into a fixed-length vector representation, and the other decodes the representation into another sequence of symbols. The encoder and decoder of the proposed model are jointly trained to maximize the conditional probability of a target sequence given a source sequence. The performance of a statistical machine translation system is empirically found to improve by using the conditional probabilities of phrase pairs computed by the RNN Encoder--Decoder as an additional feature in the existing linear model. Qualitatively, we show that the proposed model learns a semantically and syntactically meaningful representation of linguistic phrases.},
+archivePrefix = {arXiv},
+arxivId = {1406.1078},
+author = {Cho, Kyunghyun and van Merrienboer, Bart and Gulcehre, Caglar and Bahdanau, Dzmitry and Bougares, Fethi and Schwenk, Holger and Bengio, Yoshua},
+doi = {10.3115/v1/D14-1179},
+eprint = {1406.1078},
+file = {:Users/haroldsoh/Documents/Mendeley Desktop/Merri/Unknown/1406.1078.pdf:pdf},
+journal = {Proceedings of the 2014 Conference on Empirical Methods in Natural Language Processing (EMNLP)},
+keywords = {decoder,for statistical machine translation,rning phrase representations using,rnn encoder},
+pages = {1724--1734},
+title = {{Learning Phrase Representations using RNN Encoder-Decoder for Statistical Machine Translation}},
+url = {http://arxiv.org/abs/1406.1078},
+year = {2014}
+}
 
-@ARTICLE{braams:babel,
-	AUTHOR = "Johannes Braams",
-	TITLE = "Babel, a Multilingual Style-Option System for Use with LaTeX's Standard Document Styles",
-	JOURNAL = {TUGboat},
-	VOLUME = {12},
-	NUMBER = {2},
-	PAGES = {291-301},
-	MONTH = "June",
-	YEAR = {1991}	}
-
-@INPROCEEDINGS{clark:pct,
-	AUTHOR = "Malcolm Clark",
-	TITLE = "Post Congress Tristesse",
-	BOOKTITLE = "TeX90 Conference Proceedings",
-	PAGES = "84-89",
-	ORGANIZATION = "TeX Users Group",
-	MONTH = "March", 
-	YEAR = {1991}	}
-
-@ARTICLE{herlihy:methodology,
-	AUTHOR = "Maurice Herlihy",
-	TITLE = "A Methodology for Implementing Highly Concurrent
-	Data Objects",
-	JOURNAL = {ACM Trans. Program. Lang. Syst.},
-	VOLUME = {15},
-	NUMBER = {5},
-	PAGES = {745-770},
-	MONTH = "November",
-	YEAR = {1993}	}
-
-@BOOK{Lamport:LaTeX,
-	AUTHOR = "Leslie Lamport",
-	TITLE = "LaTeX User's Guide and Document Reference Manual",
-	PUBLISHER = "Addison-Wesley Publishing Company",
-	ADDRESS = "Reading, Massachusetts",
-	YEAR = "1986"	}
-
-@BOOK{salas:calculus,
-	AUTHOR = "S.L. Salas and Einar Hille",
-	TITLE = "Calculus: One and Several Variable",
-	PUBLISHER = "John Wiley and Sons",
-	ADDRESS = "New York",
-	YEAR = "1978"	}
+@article{Rendle2010,
+abstract = {Recommender systems are an important component of many websites. Two of the most popular approaches are based on matrix factorization (MF) and Markov chains (MC). MF methods learn the general taste of a user by factorizing the matrix over observed user-item preferences. On the other hand, MC methods model sequential behavior by learning a transition graph over items that is used to predict the next action based on the recent actions of a user. In this paper, we present a method bringing both approaches together. Our method is based on personalized transition graphs over un- derlying Markov chains. That means for each user an own transition matrix is learned – thus in total the method uses a transition cube. As the observations for estimating the transitions are usually very limited, our method factorizes the transition cube with a pairwise interaction model which is a special case of the Tucker Decomposition. We show that our factorized personalized MC (FPMC) model sub- sumes both a common Markov chain and the normal matrix factorization model. For learning the model parameters, we introduce an adaption of the Bayesian Personalized Ranking (BPR) framework for sequential basket data. Empirically, we show that our FPMC model outperforms both the com- mon matrix factorization and the unpersonalized MC model both learned with and without factorization. Categories},
+author = {Rendle, Steffen and Freudenthaler, Christoph and Schmidt-Thieme, Lars},
+doi = {10.1145/1772690.1772773},
+file = {:Users/haroldsoh/Documents/Mendeley Desktop/Rendle, Freudenthaler, Schmidt-Thieme/Proceedings of the 19th international conference on World wide web - WWW '10/RendleFreudenthaler2010-FPMC.pdf:pdf},
+isbn = {9781605587998},
+issn = {1469493X},
+journal = {Proceedings of the 19th international conference on World wide web - WWW '10},
+pages = {811},
+pmid = {21975771},
+title = {{Factorizing personalized Markov chains for next-basket recommendation}},
+url = {http://portal.acm.org/citation.cfm?doid=1772690.1772773},
+year = {2010}
+}
 
 
+@article{Hochreiter1997,
+abstract = {Learning to store information over extended time intervals by recurrent backpropagation takes a very long time, mostly because of insufficient, decaying error backflow. We briefly review Hochreiter's (1991) analysis of this problem, then address it by introducing a novel, efficient, gradient-based method called long short-term memory (LSTM). Truncating the gradient where this does not do harm, LSTM can learn to bridge minimal time lags in excess of 1000 discrete-time steps by enforcing constant error flow through constant error carousels within special units. Multiplicative gate units learn to open and close access to the constant error flow. LSTM is local in space and time; its computational complexity per time step and weight is O(1). Our experiments with artificial data involve local, distributed, real-valued, and noisy pattern representations. In comparisons with real-time recurrent learning, back propagation through time, recurrent cascade correlation, Elman nets, and neural sequence chunking, LSTM leads to many more successful runs, and learns much faster. LSTM also solves complex, artificial long-time-lag tasks that have never been solved by previous recurrent network algorithms.},
+archivePrefix = {arXiv},
+arxivId = {1206.2944},
+author = {Hochreiter, Sepp and Hochreiter, S and Schmidhuber, J{\"{u}}rgen and Schmidhuber, J},
+doi = {10.1162/neco.1997.9.8.1735},
+eprint = {1206.2944},
+file = {:Users/haroldsoh/Documents/Mendeley Desktop/Hochreiter et al/Neural computation/Hochreiter97{\_}lstm.pdf:pdf},
+isbn = {08997667 (ISSN)},
+issn = {0899-7667},
+journal = {Neural computation},
+keywords = {Algorithms,Learning,Memory,Memory, Short-Term,Models,Models, Neurological,Models, Psychological,Nerve Net,Nerve Net: physiology,Neural Networks (Computer),Neurological,Psychological,Short-Term,Time Factors},
+number = {8},
+pages = {1735--80},
+pmid = {9377276},
+title = {{Long short-term memory.}},
+url = {http://www.ncbi.nlm.nih.gov/pubmed/9377276},
+volume = {9},
+year = {1997}
+}
 
+@inproceedings{jozefowicz2015empirical,
+  title={An empirical exploration of recurrent network architectures},
+  author={Jozefowicz, Rafal and Zaremba, Wojciech and Sutskever, Ilya},
+  booktitle={Proceedings of the 32nd International Conference on Machine Learning (ICML-15)},
+  pages={2342--2350},
+  year={2015}
+}
 
+@article{Bengio1994,
+abstract = {Recurrent neural networks can be used to map input sequences to output sequences, such as for recognition, production or prediction problems. However, practical difficulties have been reported in training recurrent neural networks to perform tasks in which the temporal contingencies present in the input/output sequences span long intervals. We show why gradient based learning algorithms face an increasingly difficult problem as the duration of the dependencies to be captured increases. These results expose a trade-off between efficient learning by gradient descent and latching on information for long periods. Based on an understanding of this problem, alternatives to standard gradient descent are considered.},
+archivePrefix = {arXiv},
+arxivId = {arXiv:1211.5063v2},
+author = {Bengio, Yoshua and Simard, Patrice and Frasconi, Paolo},
+doi = {10.1109/72.279181},
+eprint = {arXiv:1211.5063v2},
+file = {:Users/haroldsoh/Documents/Mendeley Desktop/Unknown/Unknown/tnn-94-gradient.pdf:pdf},
+isbn = {1045-9227 VO - 5},
+issn = {19410093},
+journal = {IEEE Transactions on Neural Networks},
+number = {2},
+pages = {157--166},
+pmid = {18267787},
+title = {{Learning Long-Term Dependencies with Gradient Descent is Difficult}},
+volume = {5},
+year = {1994}
+}
 
+@online{TFCandidateSampling,
+title = {{Candidate Sampling Algorithms Reference}},
+howpublished = {\url{https://www.tensorflow.org/extras/candidate_sampling.pdf}},
+date = {2015},
+urldate = {2016-04-18}
+}
+
+@article{Jean2015,
+abstract = {Neural machine translation, a recently proposed approach to machine transla-tion based purely on neural networks, has shown promising results compared to the existing approaches such as phrase-based statistical machine translation. De-spite its recent success, neural machine translation has its limitation in handling a larger vocabulary, as training complex-ity as well as decoding complexity in-crease proportionally to the number of tar-get words. In this paper, we propose a method based on importance sampling that allows us to use a very large target vo-cabulary without increasing training com-plexity. We show that decoding can be efficiently done even with the model hav-ing a very large target vocabulary by se-lecting only a small subset of the whole target vocabulary. The models trained by the proposed approach are empirically found to match, and in some cases out-perform, the baseline models with a small vocabulary as well as the LSTM-based neural machine translation models. Fur-thermore, when we use an ensemble of a few models with very large target vo-cabularies, we achieve performance com-parable to the state of the art (measured by BLEU) on both the English→German and English→French translation tasks of WMT'14.},
+archivePrefix = {arXiv},
+arxivId = {1412.2007v2},
+author = {Jean, S{\'{e}}bastien and Cho, Kyunghyun and Memisevic, Roland and Bengio, Yoshua},
+eprint = {1412.2007v2},
+file = {:Users/haroldsoh/Documents/Mendeley Desktop/Cho/Unknown/P15-1001.pdf:pdf},
+isbn = {9781941643723},
+journal = {Proceedings of the 53rd Annual Meeting of the Association for Computational Linguistics and the 7th International Joint Conference on Natural Language Processing (Volume 1: Long Papers)},
+pages = {1--10},
+title = {{On Using Very Large Target Vocabulary for Neural Machine Translation}},
+url = {http://www.aclweb.org/anthology/P15-1001},
+year = {2015}
+}
 
