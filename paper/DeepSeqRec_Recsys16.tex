@@ -312,11 +312,13 @@ where $\odot$ denotes element-wise multiplication. The cell's reset gate $r^{(j)
 \end{align}
 The previous hidden state is effectively dropped when the reset gate's value nears zero, and as such, cells that learn short-term dependencies will have active reset gates. In comparison, cells that learn to model long-term dependencies will have active update gates~\cite{Cho2014}. 
 
+\subsection{Item Recommendation}
+Given a user $u$ and the memory state $h_{u,t}$, we would like to  our model to recommend an item $i \in I$ that would interest the user. It is common to perform this item recommendation using dot products between embeddings; this can be interpreted as finding items with maximal cosine distance. Here, we experiment with recommendation via a multi-layer perceptron (MLP) as the top layer component. Although we lose interpretability of the embeddings, this approach has the advantage of being able to (i) capture non-linear interactions between the embeddings, and (ii) handle multiple input sources (user, item history, next item and potentially others) naturally via concatenation and projection. 
    
 \subsection{Training via Candidate Sampling}
-Given a user $u$ and previous interactions $a_{u,t}$, we would like to train our model to recommend an item $i \in I$. Adopting the classification perspective allows us to train our model via backpropagation using standard techniques. However, this approach is complicated by large item sets $I$ common in recommendation settings; it becomes infeasible to compute typical loss functions, such as the softmax and logistic losses. 
+The entire model---embeddings, GRU memory cells and MLP---can be trained via standard backpropagation using an appropriate loss functions. However, using standard loss functions, such as the softmax and logistic, is complicated by large item sets $I$ common in recommendation settings; it becomes computationally infeasible to compute the unnormalized probabilities over $I$. 
 
-To address this problem, we use a technique termed as \emph{candidate sampling}~\cite{TFCandidateSampling} whereby the loss is evaluated against a small set of candidate or contrastive classes instead of over the entire set $I$. In our preliminary experiments, the sampled softmax~\cite{Jean2015} worked best (compared to Noise Contrastive Estimation and the sampled logistic) and is given by
+To address this problem, we train our models using \emph{candidate sampling}~\cite{TFCandidateSampling} whereby the loss is evaluated against a small set of candidate or contrastive classes instead of over $I$. In our preliminary experiments, the sampled softmax~\cite{Jean2015} worked best (compared to Noise Contrastive Estimation and the sampled logistic) and is given by
 \begin{align}
 	\mathcal{L}_{\textsc{sm}}
 \end{align}
@@ -332,13 +334,11 @@ where
 In this section, we report on experiments comparing the DRNN to a baseline Markov chain (MC) and the tensor Factorized Personalized Markov Chain (FPMC) models~\cite{Rendle2010}. In addition, we constructed a deep neural network (DNN) identical to the DRNN, but without the memory cells; this allowed us to isolate the effect of capturing temporal dependencies greater than the first-order on the quality of recommendations.
 
 \subsection{Experimental Setup}
-We adopt the experimental setup outlined in \cite{Rendle2010}; given the interaction history, our methods were tasked to predict the last \emph{unique} item in the sequence. We used two moderately-sized datasets: the Microsoft Web (MSWeb) and the Assistments'15 educational datasets. Following \cite{Rendle2010}, users that did not interact with at least 10 items were dropped. 
+We adopt the experimental setup outlined in \cite{Rendle2010}; given the interaction history, our methods were tasked to predict the last \emph{unique} item in the sequence. As performance scores, we computed four standard metrics: the Breese score or Half-Life Utility (HLU), Top-5 F1, precision, and recall. 
 
-To test the variability of the methods under slightly different conditions, we performed a variant of 10-fold cross-validation where 90\% of the \emph{last} items were used for testing and 10\% for validation. Early stopping was used when training FPMC, DNN and DRNN, whereby training was halted with the HLU computed on the validation set did not improve after 1000 positive training samples. A maximum of $2\times 10^6$ iterations was permitted for FPMC, and $2\times 10^5$ iterations (100-sample mini-batches) for both DNN and DRNN. 
+We used two moderately-sized datasets: the Microsoft Web (MSWeb) and the Assistments'15 educational datasets. Following \cite{Rendle2010}, users that did not interact with at least 10 items were dropped. To test the variability of the methods under slightly different conditions, we performed a variant of 10-fold cross-validation where 90\% of the \emph{last} items were used for testing and 10\% for validation. 
 
-As performance scores, we computed four standard metrics: the Breese score or Half-Life Utility (HLU), Top-5 F1, precision, and recall. 
-
-
+Early stopping was used when training FPMC, DNN and DRNN, whereby training was halted when the HLU computed on the validation set did not improve after 1000 positive training samples. A maximum of $2\times 10^6$ iterations was permitted for FPMC, and $2\times 10^5$ iterations (100-sample mini-batches) for both DNN and DRNN. We used low dropout rates of 5\% for the neural models.
 
 \subsection{Performance Results}
 \begin{figure}
@@ -349,7 +349,11 @@ As performance scores, we computed four standard metrics: the Breese score or Ha
 Summarized scores achieved by the compared methods are shown in Fig. \ref{fig:PerfResults}.
 
 \subsection{Embedding Size Effects}
-
+\begin{figure}
+\includegraphics[width=8cm]{images/EmbPerf}		
+\caption{HLU and F1 scores are dependent on embedding size.}
+\label{fig:EmbResults}
+\end{figure}
 \subsection{Length of Sequences}
 
 %
