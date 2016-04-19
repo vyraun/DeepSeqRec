@@ -334,40 +334,36 @@ where
 In this section, we report on experiments comparing the DRNN to a baseline Markov chain (MC) and the tensor Factorized Personalized Markov Chain (FPMC)~\cite{Rendle2010}. In addition, we constructed a deep neural network (DNN) identical to the DRNN, but without the memory cells; this allowed us to isolate the effect of capturing long-term temporal dependencies on the quality of recommendations. We have made source code of our FPMC implementation (in Julia) and deep models (in Python/Tensorflow) available at \url{http://xxx.xxx.xxx/xxx}.
 
 \subsection{Experimental Setup}
-We adopt the experimental setup outlined in \cite{Rendle2010}; given the interaction history, the methods were tasked to predict the last \emph{novel} item in the sequence. As performance scores, we used four standard metrics: the Breese score or Half-Life Utility (HLU), Top-5 F1, precision, and recall.  
+We adopt the experimental setup outlined in \cite{Rendle2010};  given users and associated interaction histories, the methods were tasked to predict the last \emph{novel} item in each user's sequence. As performance scores, we used four standard metrics: the Breese score or Half-Life Utility (HLU)\footnote{Here, the HLU is a proportion rather than a percentage.}, Top-5 F1, precision, and recall. 
 
 \vspace{2mm}
-\noindent\textbf{Datasets:} We used two moderately-sized datasets: the Microsoft Web Data~\cite{Breese1998} and the 2015 ASSISTments Skill Builder~\cite{Assistmentsdata} datasets. Following \cite{Rendle2010}, users that did not interact with at least 10 items were dropped. The filtered MSWeb contained 502 users, 231 items (web pages) and 6,623 interactions, and  Assistments'15 contained 3315 users, 100 items (problem sets) and 51,318 interactions. 
+\noindent\textbf{Datasets:} We used two moderately-sized datasets: the Microsoft Web Data~\cite{Breese1998} and the educational 2015 ASSISTments Skill Builder~\cite{Assistmentsdata} datasets. Following \cite{Rendle2010}, users that did not interact with at least 10 items were dropped. The filtered MSWeb contained 502 users, 231 items (web pages) and 6,623 interactions, and  Assistments'15 contained 3315 users, 100 items (problem sets) and 51,318 interactions. 
 
 \vspace{2mm}
-\noindent\textbf{Model Parameterization:} All models (except MC) used embeddings of size 128. For FPMC, we performed a grid-search over learning rates ($\{10^{-3},10^{-2},10^{-1}\}$) and regularization parameters ($\{10^{-4},10^{-3},10^{-2}\}$), and used the parameters that gave the best HLU scores on the validation set after $2\times10^5$ training iterations. To prevent inconsistencies due to initialization, we re-initialized the model 5 times and trained for $1\times10^5$ iterations, before taking the best performing model for continued training. For the deep models, we used a single-layer of 128 GRU cells, three-hidden layers for the MLP, tanh activation units\footnote{We also ran experiments with ReLU units but tanh performed better.}, and low dropout rates of 5\% for all layers. 
+\noindent\textbf{Model Parameterization:} Embeddings of size 128 were used for all models (except MC). For FPMC, we performed a grid-search over learning rates ($\{10^{-3},10^{-2},10^{-1}\}$) and regularization parameters ($\{10^{-4},10^{-3},10^{-2}\}$), and selected the parameters that gave the best HLU scores on the validation set after $2\times10^5$ training iterations. To prevent inconsistencies due to initialization, we re-initialized the model 5 times and trained for $1\times10^5$ iterations, before taking the best performing model for continued training. For the deep models, we used a single-layer of 128 GRU cells, three-hidden layers of size 128 for the MLP, tanh activation units\footnote{We also ran experiments with ReLU units but tanh performed better.}, and low dropout rates of 5\% for all layers. 
 
 \vspace{2mm}
-\noindent\textbf{Model Training and Testing:} To test the variability of the methods, we performed a variant of 10-fold cross-validation where 90\% of the \emph{last novel} items were used for testing and 10\% for validation. Early stopping was used when training FPMC, DNN and DRNN, i.e., training was halted when the HLU computed on the validation set did not improve after 1000 positive training samples. A maximum of $2\times 10^6$ iterations was permitted for FPMC, and $2\times 10^4$ iterations for both DNN and DRNN. Optimization of the deep models was performed using the Adam algorithm~\cite{Kingma2015} with a learning rate of $10^{-3}$ with 100-sample mini-batches and 16 negative samples.
+\noindent\textbf{Model Training and Testing:} To test the variability of the methods, we performed a variant of 10-fold cross-validation where 90\% of the \emph{last novel} items were used for testing and 10\% for validation. For each test partition, we compute the average scores across all sequences. Early stopping was used when training FPMC, DNN and DRNN, i.e., training was halted when the HLU computed on the validation set did not improve after 1000 positive training samples. A maximum of $2\times 10^6$ iterations was permitted for FPMC, and $2\times 10^4$ iterations for both DNN and DRNN. Optimization of the deep models was performed using the Adam algorithm~\cite{Kingma2015} with a learning rate of $10^{-3}$ with 100-sample mini-batches and 16 negative samples.
 
 \subsection{Performance Results}
 \begin{figure}
 \includegraphics[width=8cm]{images/PerfBoxplots}		
-\caption{Performance scores on the MSWeb and Assistments'15 datasets. In both datasets, the DRNN achieves the best scores,  indicating the importance of long-term dependencies for the sequential recommendation task.}
+\caption{Performance scores on the MSWeb and Assistments'15 datasets. In both datasets, the DRNN achieves the best scores, indicating the importance of long-term dependencies for the sequential recommendation task.}
 \label{fig:PerfResults}
 \end{figure}
-Summarized scores achieved by the compared methods are shown in Fig. \ref{fig:PerfResults}. 
+Fig. \ref{fig:PerfResults} summarizes the scores achieved by the compared methods. First, it is clear that the DRNN outperforms the other methods on both datasets; the observed differences are statistically significant at the 1\% level (two-sample Kolmogorov-Smirnov test, Holm-Sidak corrected p-values). Compared to the memory-less DNN, the recurrent model achieves 15-20\% higher scores, providing evidence that capturing long-term interactions improves recommendation on sequential tasks. 
 
-The differences between the HLU scores are statistically significant at the 1\% level (two-sample Kolmogorov–Smirnov test, Holm-Sidak corrected p-values). Except for FPMC and DNN on MSWeb and Assistments'15. 
+Turning our attention to the other methods, the DNN and FPMC appear to perform similarly; the FPMC achieves slightly better scores on MSWeb, and DNN is better on Assistments'15. However, the differences were not statistically significant. Interestingly, we see that the simple MC outperforms both FPMC and DNN on Assistments'15 (significant at $\alpha = 1\%$). It is possible that, under Markovian settings, the dense nature of the trained global MC matrix lent itself well to recommendation in the relatively structured setting of next problem-set prediction. That said, the higher DRNN scores suggest the benefit of taking sequential order into consideration when making predictions in this domain.
 
-For the F1 scores, statistical significance was obtained when comparing DRNN against all other methods on both datasets. Also for MC against all other methods on Assistments'15. 
-
-Conclusion: FPMC and DNN appear to perform similarly. DRNN performs best. MC performs better than FPMC and DNN on Assistments'15. 
-
-
-\subsection{Length of Sequences}
+\subsection{Sequence Length Effects}
 \begin{figure}
 \centering
 \includegraphics[width=7.5cm]{images/SeqLenPerfAnnotated}		
-\caption{HLU scores with different sequence lengths.}
+\caption{(Top) HLU scores with different sequence lengths. All four models were hampered by longer sequences, possibly due to data sparsity. Using memory was particularly effective for short and medium length sequences. (Bottom) The histogram plots show that datasets comprised mostly shorter sequences.}
 \label{fig:SeqLenResults}
 \end{figure}
-Results shown in Fig \ref{fig:SeqLenResults}; Precision and Recall scores were very similar to the HLU plots. 
+
+To better understand where the potential gains from using memory are coming from, we binned the sequences into three partitions: ``short'', ``medium'' and ``long'' sequences for each dataset. The average HLU scores over the sequences in each bin are shown in Fig \ref{fig:SeqLenResults}. We noted a decrease in HLU as length increased, i.e., recommending novel items for longer sequences was more difficult. This was not an effect of the task, since filtering out non-novel items from the ranking computation did not significantly change the relative score differences. Instead, we posit that the downward trend was an effect of data sparsity---the datasets are dominated by shorter sequences, as illustrated by the histogram plots in Fig. \ref{fig:SeqLenResults}. Setting aside this effect, we noted that the performance gains from using memory was achieved on the short and medium length sequences. On the longer sequences, performance was comparable to Markov methods (care should be taken when comparing these scores since the set of sequences they correspond to is small). 
 
 \subsection{Embedding Size Effects}
 \begin{figure}
