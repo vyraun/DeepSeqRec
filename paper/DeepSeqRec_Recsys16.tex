@@ -186,7 +186,7 @@ Scott Sanner\\
 
 \maketitle
 \begin{abstract}
-Real-world recommender systems are often required to make predictions not just of individual items but rather sequences. For example, retails products are suggested based on past transactions, and relevant websites on viewing histories. Existing sequential recommendation methods, i.e., Markov chain (MC) models and tensor-factorized versions, are constructed under the Markov assumption, which is untenable in many practical applications. In this paper, we propose and evaluate a deep learning model for sequential item recommendation that uses gated recurrent memory cells to capture long-term dependencies. Consequently, the model constructs embedding contexts that jointly capture user characteristics and purchase/rating histories. In a comparative evaluation over  datasets in web and education, we demonstrate that the non-Markovian aspect of our model results in improved novel item recommendations.  
+Real-world recommender systems are often required to make predictions not just of individual items but rather sequences. For example, retails products are suggested based on past transactions, and relevant websites on viewing histories. Existing sequential recommendation methods, i.e., Markov chain (MC) models and tensor-factorized versions, are constructed under the Markov assumption, which is untenable in many practical applications. In this paper, we propose and evaluate a deep learning model for sequential item recommendation that uses gated recurrent memory cells to capture long-term dependencies. Consequently, the model constructs embedding contexts that capture interaction histories. In a comparative evaluation over  datasets in web and education, we demonstrate that the non-Markovian aspect of our model results in improved novel item recommendations.  
 \end{abstract}
 
 
@@ -334,11 +334,11 @@ where
 In this section, we report on experiments comparing the DRNN to a baseline Markov chain (MC) and the tensor Factorized Personalized Markov Chain (FPMC) models~\cite{Rendle2010}. In addition, we constructed a deep neural network (DNN) identical to the DRNN, but without the memory cells; this allowed us to isolate the effect of capturing temporal dependencies greater than the first-order on the quality of recommendations.
 
 \subsection{Experimental Setup}
-We adopt the experimental setup outlined in \cite{Rendle2010}; given the interaction history, our methods were tasked to predict the last \emph{unique} item in the sequence. As performance scores, we computed four standard metrics: the Breese score or Half-Life Utility (HLU), Top-5 F1, precision, and recall. 
+We adopt the experimental setup outlined in \cite{Rendle2010}; given the interaction history, our methods were tasked to predict the last \emph{novel} item in the sequence. As performance scores, we computed four standard metrics: the Breese score or Half-Life Utility (HLU), Top-5 F1, precision, and recall.  
 
-We used two moderately-sized datasets: the Microsoft Web (MSWeb) and the Assistments'15 educational datasets. Following \cite{Rendle2010}, users that did not interact with at least 10 items were dropped. To test the variability of the methods under slightly different conditions, we performed a variant of 10-fold cross-validation where 90\% of the \emph{last} items were used for testing and 10\% for validation. 
+We used two moderately-sized datasets: the Microsoft Web (MSWeb) and the Assistments'15 educational datasets. Following \cite{Rendle2010}, users that did not interact with at least 10 items were dropped. To test the variability of the methods under slightly different conditions, we performed a variant of 10-fold cross-validation where 90\% of the \emph{last} items were used for testing and 10\% for validation. The filtered MSWeb dataset contained 502 users, 231 items and 6,623 interactions. The filtered Assistments'15 dataset contained 3315 users, 100 items (problem sets) and 51,318 interactions. 
 
-Early stopping was used when training FPMC, DNN and DRNN, whereby training was halted when the HLU computed on the validation set did not improve after 1000 positive training samples. A maximum of $2\times 10^6$ iterations was permitted for FPMC, and $2\times 10^5$ iterations (100-sample mini-batches) for both DNN and DRNN. We used low dropout rates of 5\% for the neural models.
+Early stopping was used when training FPMC, DNN and DRNN, whereby training was halted when the HLU computed on the validation set did not improve after 1000 positive training samples. A maximum of $2\times 10^6$ iterations was permitted for FPMC, and $2\times 10^4$ iterations (100-sample mini-batches) for both DNN and DRNN. We used low dropout rates of 5\% for the neural models. [Expand about grid search for FPMC]
 
 \subsection{Performance Results}
 \begin{figure}
@@ -346,15 +346,26 @@ Early stopping was used when training FPMC, DNN and DRNN, whereby training was h
 \caption{Performance scores on the MSWeb and Assistments'15 datasets. In both datasets, the DRNN achieves the best scores,  suggesting the importance of long-term dependencies for the sequential recommendation task.}
 \label{fig:PerfResults}
 \end{figure}
-Summarized scores achieved by the compared methods are shown in Fig. \ref{fig:PerfResults}.
+Summarized scores achieved by the compared methods are shown in Fig. \ref{fig:PerfResults}. [Expand and report statistical test results.]
+
+\subsection{Length of Sequences}
+\begin{figure}
+\includegraphics[width=8cm]{images/SeqLenPerfAnnotated}		
+\caption{HLU scores with different sequence lengths.}
+\label{fig:SeqLenResults}
+\end{figure}
+Results shown in Fig \ref{fig:SeqLenResults}; Precision and Recall scores were very similar to the HLU plots. 
 
 \subsection{Embedding Size Effects}
 \begin{figure}
 \includegraphics[width=8cm]{images/EmbPerf}		
-\caption{HLU and F1 scores are dependent on embedding size.}
+\caption{DRNN and FPMC performance with different embedding sizes (32, 64 and 128). DRNN performance improved sharply with larger embeddings on both datasets, where else FPMC's performance was more stable. At the smallest embedding of 32, FPMC outperformed DRNN on Assistments'15, but otherwise, DRNN achieved the higher HLU and F1 scores.}
 \label{fig:EmbResults}
 \end{figure}
-\subsection{Length of Sequences}
+
+
+Results shown in Fig \ref{fig:EmbResults}; Precision and Recall scores were very similar to the F1 plots. 
+
 
 %
 %\begin{table}
