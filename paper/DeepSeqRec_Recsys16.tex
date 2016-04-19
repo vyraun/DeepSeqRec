@@ -313,7 +313,7 @@ where $\odot$ denotes element-wise multiplication. The cell's reset gate $r^{(j)
 The previous hidden state is effectively dropped when the reset gate's value nears zero, and as such, cells that learn short-term dependencies will have active reset gates. In comparison, cells that learn to model long-term dependencies will have active update gates~\cite{Cho2014}. 
 
 \subsection{Item Recommendation}
-Given a user $u$ and the memory state $h_{u,t}$, we would like to  our model to recommend an item $i \in I$ that would interest the user. It is common to perform this item recommendation using dot products between embeddings; this can be interpreted as finding items with maximal cosine distance. Here, we experiment with recommendation via a multi-layer perceptron (MLP) as the top layer component. Although we lose interpretability of the embeddings, this approach has the advantage of being able to (i) capture non-linear interactions between the embeddings, and (ii) handle multiple input sources (user, item history, next item and potentially others) naturally via concatenation and projection. 
+Given a user $u$ and the memory state $h_{u,t}$, we would like to  our model to recommend an item $i \in I$ that would interest the user. It is common to perform this item recommendation using dot products between embeddings; this can be interpreted as finding items with maximal cosine similarity. Here, we experiment with recommendation via a multi-layer perceptron (MLP) as the top layer component. Although we lose interpretability of the embeddings, this approach has the advantage of being able to (i) capture non-linear interactions between the embeddings, and (ii) handle multiple input sources (user, item history, next item and potentially others) naturally via concatenation and projection. 
    
 \subsection{Training via Candidate Sampling}
 The entire model---embeddings, GRU memory cells and MLP---can be trained via standard backpropagation using an appropriate loss functions. However, standard loss functions, such as the softmax and logistic, become computationally infeasible to compute the unnormalized probabilities for the large item sets $I$ common in recommendation settings.
@@ -351,7 +351,7 @@ We adopt the experimental setup outlined in \cite{Rendle2010};  given users and 
 \caption{Performance scores on the MSWeb and Assistments'15 datasets. In both datasets, the DRNN achieves the best scores, indicating the importance of long-term dependencies for the sequential recommendation task.}
 \label{fig:PerfResults}
 \end{figure}
-Fig. \ref{fig:PerfResults} summarizes the scores achieved by the compared methods. First, it is clear that the DRNN outperforms the other methods on both datasets; the observed differences are statistically significant at the 1\% level (two-sample Kolmogorov-Smirnov test, Holm-Sidak corrected p-values). Compared to the memory-less DNN, the recurrent model achieves 15-20\% higher scores, providing evidence that capturing long-term interactions improves recommendation on sequential tasks. 
+Fig. \ref{fig:PerfResults} summarizes the scores achieved by the compared methods. First, it is clear that DRNN outperforms the other methods on both datasets; the observed differences are statistically significant at the 1\% level (two-sample Kolmogorov-Smirnov test, Holm-Sidak corrected p-values). Compared to the memory-less DNN, the recurrent model achieves 15-20\% higher scores, providing evidence that capturing long-term interactions improves recommendation on sequential tasks. 
 
 Turning our attention to the other methods, the DNN and FPMC appear to perform similarly; the FPMC achieves slightly better scores on MSWeb, and DNN is better on Assistments'15. However, the differences were not statistically significant. Interestingly, we see that the simple MC outperforms both FPMC and DNN on Assistments'15 (significant at $\alpha = 1\%$). It is possible that, under Markovian settings, the dense nature of the trained global MC matrix lent itself well to recommendation in the relatively structured setting of next problem-set prediction. That said, the higher DRNN scores suggest the benefit of taking sequential order into consideration when making predictions in this domain.
 
@@ -359,22 +359,20 @@ Turning our attention to the other methods, the DNN and FPMC appear to perform s
 \begin{figure}
 \centering
 \includegraphics[width=7.5cm]{images/SeqLenPerfAnnotated}		
-\caption{(Top) HLU scores with different sequence lengths. All four models were hampered by longer sequences, possibly due to data sparsity. Using memory was particularly effective for short and medium length sequences. (Bottom) The histogram plots show that datasets comprised mostly shorter sequences.}
+\caption{(Top) HLU scores with different sequence lengths. Using memory was particularly effective for short and medium length sequences. All four models were hampered by longer sequences, possibly due to data sparsity.  (Bottom) The histogram plots show that datasets comprised mostly short sequences and long sequences were rare.}
 \label{fig:SeqLenResults}
 \end{figure}
 
-To better understand where the potential gains from using memory are coming from, we binned the sequences into three partitions: ``short'', ``medium'' and ``long'' sequences for each dataset. The average HLU scores over the sequences in each bin are shown in Fig \ref{fig:SeqLenResults}. We noted a decrease in HLU as length increased, i.e., recommending novel items for longer sequences was more difficult. This was not an effect of the task, since filtering out non-novel items from the ranking computation did not significantly change the relative score differences. Instead, we posit that the downward trend was an effect of data sparsity---the datasets are dominated by shorter sequences, as illustrated by the histogram plots in Fig. \ref{fig:SeqLenResults}. Setting aside this effect, we noted that the performance gains from using memory was achieved on the short and medium length sequences. On the longer sequences, performance was comparable to Markov methods (care should be taken when comparing these scores since the set of sequences they correspond to is small). 
+To better understand the observed performance differences, we binned the sequences into three partitions: short, medium and long sequences for each dataset. The average HLU scores over the sequences in each bin are shown in Fig \ref{fig:SeqLenResults}. We noted a decrease in HLU as length increased, i.e., recommending novel items for longer sequences was more difficult. This was not an side-effect of the task, since filtering out non-novel items from the ranking computation did not significantly change the relative score differences. Instead, we posit that the downward trend was caused by data sparsity---the datasets are dominated by shorter sequences, as illustrated by the histogram plots in Fig. \ref{fig:SeqLenResults}. Setting aside this effect, we noted that the performance gains from using memory was achieved on the short and medium length sequences. On the longer sequences, performance was comparable to Markov methods (care should be taken when comparing these scores since the set of sequences they correspond to is small). 
 
 \subsection{Embedding Size Effects}
 \begin{figure}
 \centering
 \includegraphics[width=8cm]{images/EmbPerf}		
-\caption{DRNN and FPMC performance with different embedding sizes (32, 64 and 128). DRNN performance improved sharply with larger embeddings on both datasets, where else FPMC's performance was more stable. At the smallest embedding of 32, FPMC outperformed DRNN on Assistments'15, but otherwise, DRNN achieved the higher HLU and F1 scores.}
+\caption{DRNN and FPMC performance with different embedding sizes (32, 64 and 128). DRNN performance improved more sharply with larger embeddings on both datasets, compared to FPMC. At the smallest embedding of 32, FPMC outperformed DRNN on Assistments'15, but otherwise, DRNN achieved the higher HLU and F1 scores.}
 \label{fig:EmbResults}
 \end{figure}
-
-
-Results shown in Fig \ref{fig:EmbResults}; Precision and Recall scores were very similar to the F1 plots. 
+In preliminary trials, we found DRNN to be highly influenced by the embedding and memory cell sizes. To further evaluate this observation, we conducted additional runs with FPMC and DRNN with embeddings of length 32, 64 and 128. Note that to ease comparison, the memory cell and embedding sizes were set equal. Fig \ref{fig:EmbResults} shows the resultant HLU and F1 scores on both datasets. As expected, the performance of the neural model increased with embedding size, but the relative differences were more drastic for DRNN compared to FPMC. Indeed, at the smallest embedding size of 32, FPMC significantly outperformed DRNN on Assistments'15, suggesting it is important to have  embedding/memory large enough to garner the positive effects of memory. This should be balanced against computational costs since some effect of diminishing returns was observed; on the MSWeb dataset, the increase from 64 to 128 only led to a marginal $\sim 4\%$ increase in HLU score.
 
 
 %
@@ -448,12 +446,12 @@ Results shown in Fig \ref{fig:EmbResults}; Precision and Recall scores were very
 %\end{center} 
 %\end{table}
 
-\subsection{Large Scale Experiment}
-Need a Large Scale Experiment here! 
-
+%\subsection{Large Scale Experiment}
+%Need a Large Scale Experiment here! 
 
 \section{Discussion}
-Potential Extensions
+Extension to cold start settings
+
 
 \section{Summary and Conclusions}
 
