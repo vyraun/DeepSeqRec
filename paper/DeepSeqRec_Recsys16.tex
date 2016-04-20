@@ -280,20 +280,20 @@ Problem formulation. Challenges when applying deep learning. Large itemsets.
 \begin{figure}
 \centering
 	\includegraphics[width=7cm]{images/ModelArch}
-	\caption{Model Architecture for Deep Sequential Recommendation. At a high-level, the model comprises three basic component layers responsible for (i) encoding the input as real vectors (embeddings), (ii) compressing the input sequence as a ``memory state'', and (iii) making a final selection/ranking of next items to be recommended (hidden layers and classifier). The entire model is trained via back-propagation using candidate sampling. See text for details.}
+	\caption{Model Architecture for Deep Sequential Recommendation. At a high-level, the model comprises three basic component layers responsible for (i) encoding the input as real vectors (embeddings), (ii) compressing the input sequence as a ``memory state'', and (iii) making a final selection/ranking of next items to be recommended (hidden layers and classifier). The entire model is trained via back-propagation using candidate/constrastive sampling.}
 	\label{fig:ModelArch}
 \end{figure}
 
 A high-level overview of our model architecture is shown in Fig. \ref{fig:ModelArch}. 
 
 \subsection{Embedding Symbols as Vectors}
-At the first stage of the model, user and item symbols are mapped to real  vectors (embeddings). This mapping is implemented as a table lookup where each user $u \in U$ is associated with a corresponding vector $\mat{x}_u$. Likewise, each item $i \in I$ has a associated $\mat{x}_i$. The user's interaction history at time $t$, $V_{u,t} = (i_{u,t_s}, i_{u,t_s + 1}, \dots, i_{u,t})$ is transformed to $X_{u,t} = (\mat{x}_{u,t_s}, \mat{x}_{u,t_s + 1}, \dots, \mat{x}_{u,t})$. 
+At the first stage of the model, user and item symbols are mapped to real  vectors (embeddings). This mapping is implemented as a table lookup where each user $u \in U$ is associated with a corresponding vector $\mat{x}_u$. Likewise, each item $i \in I$ has a associated $\mat{x}_i$. The user's interaction history at time $t$, $V_{u,t} = (i_{u,t_s}, i_{u,t_s + 1}, \dots, i_{u,t})$ is transformed to $X_{u,t} = (\mat{x}_{u,t_s}, \mat{x}_{u,t_s + 1}, \dots, \mat{x}_{u,t})$. Target or sampled items (explained in Section \ref{sec:training}) are also embedded as $\mat{x}^{(i)}$. 
 
 \subsection{Memory: Gated Recurrent Units}
 \begin{figure}
 \centering
 	\includegraphics[width=8cm]{images/GRU}
-	\caption{The model's memory is composed of Gated Recurrent Units (GRU) cells that selectively update or reset their hidden states via two gates. An interaction history is fed an item at a time into the cell and the update gate $z$ determines whether the internal state $h$ is replaced by a new hidden state $\tilde{h}$. The reset gate $r$ controls whether to disregard the previous hidden state. Although sometimes shown as discrete gates (as above), the updates/resets are weighted averages using parameters learnt from data. After the history is fed, and the final hidden state is relayed to higher layers.}
+	\caption{The model's memory is composed of Gated Recurrent Units (GRU) cells that selectively update or reset their hidden states via two gates: the update gate $z$ determines whether the internal state $h$ is replaced by a new hidden state $\tilde{h}$. The reset gate $r$ controls whether to disregard the previous hidden state. Although sometimes shown as discrete gates (as above), the updates/resets are weighted averages using parameters learnt from data. After the entire user interaction history is fed, and the final hidden state is relayed to higher layers.}
 	\label{fig:GRU}
 \end{figure}
 
@@ -316,16 +316,17 @@ where $\odot$ denotes element-wise multiplication. The cell's reset gate $r^{(j)
 The previous hidden state is effectively dropped when the reset gate's value nears zero, and as such, cells that learn short-term dependencies  have active reset gates. In comparison, cells that learn to model long-term dependencies will have active update gates~\cite{Cho2014}. Our model uses an array of $n_\textsc{gru}$; the number of layers can also be varied but we found a single layer sufficient for our experiments. Effectively, the memory cells ``compress'' the user interaction history $X_{u,t} = (\mat{x}_{u,t_s}, \mat{x}_{u,t_s + 1}, \dots, \mat{x}_{u,t})$ to a real vector $\mat{h}_{u,t}$.
 
 \subsection{Item Recommendation}
-Given the embedded user $\mat{x}_u$ and memory state $\mat{h}_{u,t}$, our model seeks to recommend an item $i \in I$. It is common to perform this item recommendation using dot products between embeddings; this can be interpreted as finding items with maximal cosine similarity. Here, we experiment with recommendation via multiple hidden layers with nonlinear activation units, with a softmax classifier at the top. Although we lose some ``spatial'' interpretability, this approach has the advantage of being able to (i) capture non-linear interactions between the embedded objects, and (ii) handle multiple input sources---user, interaction history, and potentially other features---naturally via concatenation and projection. These hidden layers further transform the inputs to a combined representation $\hatmat{x}_{u,t}$ which is used to perform the final classification.
+Given the embedded user $\mat{x}_u$ and memory state $\mat{h}_{u,t}$, our model seeks to recommend an item $i \in I$. It is common to perform this item recommendation using dot products between embeddings; this can be interpreted as finding items with maximal cosine similarity. Here, we experiment with recommendation via multiple hidden layers with nonlinear activation units, with a softmax classifier at the top. Although we lose some ``spatial'' interpretability, this approach has the advantage of being able to (i) capture non-linear interactions between the embedded objects, and (ii) handle multiple input sources---user, interaction history, target item, and potentially other features---naturally via concatenation and projection. These hidden layers further transform the inputs to a combined representation $\hatmat{x}^{(i)}_{u,t}$ which is used to perform the final classification.
    
 \subsection{Training via Candidate Sampling}
+\label{sec:training}
 The entire model---embeddings, GRU cells and hidden layers---can be trained via standard backpropagation using an appropriate loss function. Unfortunately, standard loss functions, such as the softmax and logistic, become computationally infeasible to compute given the large item sets $I$ common in recommendation settings.
 
 To address this problem, we train our models using \emph{candidate sampling}~\cite{TFCandidateSampling}---the loss is evaluated against a small set of candidate or contrastive classes instead of over $I$. In  this work, we used the recently-proposed sampled softmax used in neural translation~\cite{Jean2015}\footnote{The sampled softmax achieved better scores compared to Noise Contrastive Estimation and the sampled logistic in our preliminary trials.} and a simple uniform distribution $Q(i|\hatmat{x}_{u,t}) = 1/I$ to form the candidate set $S$, resulting in an augmented loss function,
 \begin{align}
-	l_{\textsc{sm}}(\hatmat{x}_{u,t}, y) = -\hatmat{x}^{(y)}_{u,t} - \log{|I|} + \log \left( \sum_{i'\in S} \exp(\hatmat{x}^{(i')}_{u,t} - \log|I|)  \right) 
+	l_{\textsc{sm}}(\hatmat{x}_{u,t}, y) = -\mat{w}_c^{\top}\hatmat{x}^{(y)}_{u,t} + \log \left( \frac{\sum_{i'\in S} \exp(\mat{w}_c^{\top}\hatmat{x}^{(i')}_{u,t} - \log|I|)}{|I|}  \right) 
 \end{align}
-where $y = i_{u,t+1}$ is the item observed at time $t+1$ and $\hatmat{x}_{u,t}^{(i')}$ is the top-level combined representation obtained by feeding the model with the tuple $(u, V_{u,t}, i')$.
+where $y = i_{u,t+1}$ is the target item observed at time $t+1$ and $\hatmat{x}_{u,t}^{(i')}$ is the top-level combined representation obtained by feeding the model with the tuple $(u, V_{u,t}, i')$.
 
 \section{Experiments}
 In this section, we report on experiments comparing the DRNN to a baseline Markov chain (MC) and the tensor Factorized Personalized Markov Chain (FPMC)~\cite{Rendle2010}. In addition, we constructed a deep neural network (DNN) identical to the DRNN, but without the memory cells; this allowed us to isolate the effect of capturing long-term temporal dependencies on the quality of recommendations. We have made source code of our FPMC implementation (in Julia) and deep models (in Python/Tensorflow) available at \url{http://xxx.xxx.xxx/xxx}.
