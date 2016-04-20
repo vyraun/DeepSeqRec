@@ -186,7 +186,7 @@
 
 \maketitle
 \begin{abstract}
-Many recommendation settings have a strongly sequential nature.  For example, in online education tutoring, student knowledge is dynamic and  recently completed assignments are often the most relevant for recommending future problem sets. Similarly, online web browsing sessions are highly contextual and recent user site visits are strongly  indicative of future browsing interests.  Most existing sequential recommendation methods focus on Markov models and tensor-factorized extensions; while these methods do capture sequential context, they cannot easily capture long-term dependencies due to their Markov assumption.  In this paper, we propose and evaluate a Deep Recurrent Neural Network (DRNN) for sequential item recommendation that uses gated recurrent memory units (GRUs) to learn both long-term dependencies and latent contexts that compress user interaction histories.  In a comparative evaluation on educational and web datasets, we show that DRNN outperforms a deep network without long short-term memory as well as a state-of-the-art tensor factorized personalized Markov chain (FPMC), thus demonstrating the importance of learning long-term dependencies in sequential recommendation.
+Many recommendation settings have a strongly sequential nature.  For example, in online education tutoring, student knowledge is dynamic and  recently completed problem sets are the most relevant for recommending future problem sets. Similarly, online web browsing sessions are highly contextual and recent user site visits are strongly  indicative of future browsing interests.  Most existing sequential recommendation methods focus on Markov models and tensor-factorized extensions; while these methods do capture sequential context, they cannot easily capture long-term dependencies due to their Markov assumption. We hypothesize that long-term dependencies, and not just the last user interaction, is critical for forming accurate recommendations. In this paper, we propose and evaluate a Deep Recurrent Neural Network (DRNN) for sequential item recommendation that uses gated recurrent memory units (GRUs) to learn latent contexts that compress user interaction histories.  In a comparative evaluation on educational and web datasets, we show that DRNN outperforms a deep network without long short-term memory as well as a state-of-the-art tensor factorized personalized Markov chain (FPMC), thus demonstrating the importance of learning long-term dependencies in sequential recommendation.
 \end{abstract}
 
 
@@ -268,8 +268,8 @@ pairwise, but not higher-order, historical dependencies.
 	\label{fig:ModelArch}
 \end{figure}
 
-In this paper, we hypothesize that long-term dependencies are
-important for making relevant sequential recommendations.  Yet
+In this paper, our primary hypothesis is that long-term dependencies are
+important for making relevant sequential recommendations. Yet
 extending existing methods to make them higher-order Markov to capture
 such dependencies is generally impractical due to the memory and
 computational requirements of learning higher-order (factorized)
@@ -379,7 +379,7 @@ We adopt the experimental setup outlined in \cite{Rendle2010};  given users and 
 
 \begin{figure}[t]
 \centering 
-\includegraphics[width=7.5cm]{images/PerfBoxplots}		
+\includegraphics[width=8cm]{images/PerfBoxplots}		
 \caption{Performance scores on the MSWeb and Assistments'15 datasets. On both datasets, the DRNN achieves the best scores, indicating the importance of long-term dependencies for the sequential recommendation task.}
 \label{fig:PerfResults}
 \end{figure}
@@ -387,7 +387,7 @@ We adopt the experimental setup outlined in \cite{Rendle2010};  given users and 
 \subsection{Results}
 Fig. \ref{fig:PerfResults} summarizes the scores achieved by the compared methods. DRNN outperformed the other methods on both datasets; the observed differences are statistically significant at the 1\% level (two-sample Kolmogorov-Smirnov test with Holm-Sidak corrected p-values). Compared to the memory-less DNN, the recurrent model achieves 15-20\% higher scores, providing evidence that capturing long-term interactions improves recommendation on sequential tasks. 
 
-Turning our attention to the other methods, the DNN and FPMC perform similarly; FPMC achieves slightly better scores on MSWeb, and DNN is better on Assistments'15. However, the differences were not statistically significant. Interestingly, the baseline MC outperformed both FPMC and DNN on Assistments'15 (significant at $\alpha = 1\%$). Under Markovian conditions, it is possible that the dense  global MC matrix (48\% filled) lent itself well to recommendation in the relatively structured setting of next problem-set prediction, counteracting any potential benefits from user personalization. %That said, the higher DRNN scores suggest the benefit of taking sequential order into consideration when making predictions in this domain.
+Turning our attention to the other methods, the DNN and FPMC perform similarly; FPMC achieves slightly better scores on MSWeb, and DNN is better on Assistments'15. However, the differences were not statistically significant. Interestingly, the baseline MC outperformed both FPMC and DNN on Assistments'15 (significant at $\alpha = 1\%$). Under Markovian conditions, it is possible that the dense  global MC matrix (48\% filled) lent itself well to the relatively structured setting of next problem-set recommendation, counteracting any potential benefits from user personalization. %That said, the higher DRNN scores suggest the benefit of taking sequential order into consideration when making predictions in this domain.
 
 
 \begin{figure}[t]
@@ -486,7 +486,7 @@ Turning our attention to the other methods, the DNN and FPMC perform similarly; 
 %Need a Large Scale Experiment here! 
 
 \section{Summary and Conclusions}
-This work presented and empirically evaluated DRNN, a deep recurrent neural model for sequential recommendation that leverages on GRU memory cells to selective retain information about a users interaction history. Experiments on two datasets showed that the DRNN outperformed a memoryless deep neural network and a state-of-the-art tensor factorized Markov model. These results lend support to the notion that capturing long-term dependencies is  important for making accurate recommendations. Moving forward, the DRNN can be extended in several interesting ways; for example, it is straightforwardly applied to cold-start settings (e.g., for book recommendation~\cite{Pera2013}) by replacing the embedding lookups with inputs for relevant side-information (book content and user features). If needed, features representations can been learnt via deep convolutional nets trained on unstructured data. 
+This work presented and empirically evaluated DRNN, a deep recurrent neural model for sequential recommendation that leverages on GRU memory cells to selectively retain information about a users interaction history. Experiments on two datasets showed that the DRNN outperformed a memoryless deep neural network and a state-of-the-art tensor factorized Markov model. These results lend support to the notion that capturing long-term dependencies is  important for making accurate recommendations. Moving forward, the DRNN can be extended in several interesting ways; for example, it is straightforwardly applied to cold-start settings (e.g., for book recommendation~\cite{Pera2013}) by replacing the embedding lookups with inputs for relevant side-information (book content and user features). If needed, features representations can been learnt via deep convolutional nets trained on unstructured data. 
 
 
 %ACKNOWLEDGMENTS are optional
