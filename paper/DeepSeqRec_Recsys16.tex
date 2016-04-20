@@ -186,7 +186,7 @@ Scott Sanner\\
 
 \maketitle
 \begin{abstract}
-Real-world recommender systems are often required to make predictions not just of individual items but rather sequences. For example, retail products are suggested based on past transactions, and relevant websites on viewing histories. Existing sequential recommendation methods, i.e., Markov chain (MC) models and tensor-factorized versions, are constructed under the Markov assumption, which is untenable in many practical applications. In this paper, we propose and evaluate a Deep Recurrent Neural Network (DRNN) for sequential item recommendation that uses gated recurrent memory cells to capture long-term dependencies. Consequently, the model constructs embedding contexts that capture interaction histories. In a comparative evaluation on datasets in web and education, we demonstrate that DRNN outperforms a deep network without memory and the factorized personalized markov chain (FPMC), demonstrating the importance of memory in sequential recommendation tasks.
+Real-world recommender systems are often required to make predictions not just of individual items but rather sequences. For example, retail products are suggested based on past transactions, and relevant websites on viewing histories. Existing sequential recommendation methods, i.e., Markov chain (MC) models and tensor-factorized versions, are constructed under the Markov assumption, which is untenable in many practical settings. In this paper, we propose and evaluate a Deep Recurrent Neural Network (DRNN) for sequential item recommendation that uses gated recurrent memory cells to learn long-term dependencies and construct contexts that compress user interaction histories. In a comparative evaluation on web and education datasets, we demonstrate that DRNN outperforms a deep network without memory and the factorized personalized markov chain (FPMC), demonstrating the importance of memory in personalized sequential recommendation tasks.
 \end{abstract}
 
 
@@ -195,35 +195,35 @@ Real-world recommender systems are often required to make predictions not just o
 % http://dl.acm.org/ccs.cfm
 % Please copy and paste the code instead of the example below. 
 %
-\begin{CCSXML}
-<ccs2012>
- <concept>
-  <concept_id>10010520.10010553.10010562</concept_id>
-  <concept_desc>Computer systems organization~Embedded systems</concept_desc>
-  <concept_significance>500</concept_significance>
- </concept>
- <concept>
-  <concept_id>10010520.10010575.10010755</concept_id>
-  <concept_desc>Computer systems organization~Redundancy</concept_desc>
-  <concept_significance>300</concept_significance>
- </concept>
- <concept>
-  <concept_id>10010520.10010553.10010554</concept_id>
-  <concept_desc>Computer systems organization~Robotics</concept_desc>
-  <concept_significance>100</concept_significance>
- </concept>
- <concept>
-  <concept_id>10003033.10003083.10003095</concept_id>
-  <concept_desc>Networks~Network reliability</concept_desc>
-  <concept_significance>100</concept_significance>
- </concept>
-</ccs2012>  
-\end{CCSXML}
-
-\ccsdesc[500]{Computer systems organization~Embedded systems}
-\ccsdesc[300]{Computer systems organization~Redundancy}
-\ccsdesc{Computer systems organization~Robotics}
-\ccsdesc[100]{Networks~Network reliability}
+%\begin{CCSXML}
+%<ccs2012>
+% <concept>
+%  <concept_id>10010520.10010553.10010562</concept_id>
+%  <concept_desc>Computer systems organization~Embedded systems</concept_desc>
+%  <concept_significance>500</concept_significance>
+% </concept>
+% <concept>
+%  <concept_id>10010520.10010575.10010755</concept_id>
+%  <concept_desc>Computer systems organization~Redundancy</concept_desc>
+%  <concept_significance>300</concept_significance>
+% </concept>
+% <concept>
+%  <concept_id>10010520.10010553.10010554</concept_id>
+%  <concept_desc>Computer systems organization~Robotics</concept_desc>
+%  <concept_significance>100</concept_significance>
+% </concept>
+% <concept>
+%  <concept_id>10003033.10003083.10003095</concept_id>
+%  <concept_desc>Networks~Network reliability</concept_desc>
+%  <concept_significance>100</concept_significance>
+% </concept>
+%</ccs2012>  
+%\end{CCSXML}
+%
+%\ccsdesc[500]{Computer systems organization~Embedded systems}
+%\ccsdesc[300]{Computer systems organization~Redundancy}
+%\ccsdesc{Computer systems organization~Robotics}
+%\ccsdesc[100]{Networks~Network reliability}
 
 
 %
@@ -238,7 +238,7 @@ Real-world recommender systems are often required to make predictions not just o
 % We no longer use \terms command
 %\terms{Theory}
 
-\keywords{Collaborative Filtering; Sequential Recommendation; Bayesian Model Averaging}
+\keywords{Sequential Recommendation; Recurrent Neural Networks; Collaborative Filtering}
 
 \section{Introduction}
 \paragraph{Why is Sequential recommendation is important? examples?}
@@ -272,22 +272,17 @@ What existing methods are there?
 \end{itemize}
  
 \section{Deep Sequential Recommender}
-
-Problem formulation. Challenges when applying deep learning. Large itemsets. 
-
-\subsection{Model Architecture}
-
 \begin{figure}
 \centering
-	\includegraphics[width=7cm]{images/ModelArch}
-	\caption{Model Architecture for Deep Sequential Recommendation. The DRNN comprises three basic component layers responsible for (i) encoding the input as real vectors (embeddings), (ii) compressing the input sequence as a ``memory state'', and (iii) making a final selection/ranking of next items to be recommended (hidden layers and classifier). The entire model is trained via back-propagation using candidate/constrastive sampling.}
+	\includegraphics[width=8cm]{images/ModelArch}
+	\caption{Model Architecture for Deep Sequential Recommendation. The DRNN comprises three basic components responsible for (i) encoding the input as real vectors (embeddings), (ii) compressing the input sequence as a ``memory state'', and (iii) making a final selection/ranking of next items to be recommended (hidden layers and classifier). The entire model is trained via back-propagation using candidate/constrastive sampling.}
 	\label{fig:ModelArch}
 \end{figure}
 
-A high-level overview of our model architecture is shown in Fig. \ref{fig:ModelArch}. 
+In sequential recommendation, we aim to suggest promising next items $y = i_{u,t+1} \in I$ given tuples $(u, V_{u,t})$ of users $u \in U$ and interaction histories $V_{u,t} = (i_{u,t_s}, i_{u,t_s + 1}, \dots$ $, i_{u,t})$ consisting of previous items $i_{u,t} \in I$. In this work, our goal is to develop a model capable of making full use of user interaction histories to enable better personalized recommendations. To this end, we leverage on recent advances in deep learning and propose a deep recurrent neural network (DRNN) (\ref{fig:ModelArch}) that comprises three main components arranged in a layer-wise fashion from bottom to top: (i) embedding lookups, (ii) memory cells, and (iii) hidden layers and a softmax classifier. 
 
 \subsection{Embedding Symbols as Vectors}
-At the first layer, user and item symbols are mapped to real  vectors (embeddings). This mapping is implemented as a table lookup where each user $u \in U$ is associated with a corresponding vector $\mat{x}_u$. Likewise, each item $i \in I$ has a associated $\mat{x}_i$, allowing the user's interaction history at time $t$, $V_{u,t} = (i_{u,t_s}, i_{u,t_s + 1}, \dots, i_{u,t})$ to be represented as $X_{u,t} = (\mat{x}_{u,t_s}, \mat{x}_{u,t_s + 1}, \dots, \mat{x}_{u,t})$. Target or sampled items (explained in Section \ref{sec:training}) are embedded as $\mat{x}^{(j)}$. The sizes of these vectors are model parameters $n_{u}, n_i$, and $n_j$ for the user, item, and target item respectively. 
+At the first stage, user and item symbols are mapped to real  vectors (embeddings). This mapping is implemented as a table lookup where each user $u$ is associated with a corresponding vector $\mat{x}_u \in \mathbb{R}^{n_u}$. Likewise, each item $i$ has a associated $\mat{x}_i \in \mathbb{R}^{n_i}$, allowing the user's interaction history $V_{u,t}$ to be represented as $X_{u,t} = (\mat{x}_{u,t_s}, \mat{x}_{u,t_s + 1}, \dots, \mat{x}_{u,t})$. Target or sampled items (explained in Section \ref{sec:training}) are embedded as $\mat{x}^{(j)} \in \mathbb{R}^{n_j}$. The sizes of these vectors, $n_{u}, n_i$, and $n_j$, are model parameters.
 
 \subsection{Memory: Gated Recurrent Units}
 \begin{figure}
@@ -315,18 +310,18 @@ where $\odot$ denotes element-wise multiplication. The cell's reset gate $r^{(j)
 \end{align}
 The previous hidden state is effectively dropped when the reset gate's value nears zero, and as such, cells that learn short-term dependencies  have active reset gates. In comparison, cells that learn to model long-term dependencies have active update gates~\cite{Cho2014}. Our model uses an array of $n_\textsc{gru}$ cells. The number of layers can also be varied but we found a single layer sufficient for our experiments. Effectively, the memory cells ``compress'' the user interaction history $X_{u,t} = (\mat{x}_{u,t_s}, \mat{x}_{u,t_s + 1}, \dots, \mat{x}_{u,t})$ to a real vector $\mat{h}_{u,t}$.
 
-\subsection{Item Recommendation}
-Given the embedded user $\mat{x}_u$ and memory state $\mat{h}_{u,t}$, we seek to recommend an item $i \in I$. It is common to perform this item recommendation using dot products between embeddings; this can be interpreted as finding items with maximal cosine similarity. Here, we experiment with recommendation via multiple hidden layers with nonlinear activation units, leading to a softmax classifier at the top. Although we lose some ``spatial'' interpretability, this approach has the advantage of being able to (i) capture non-linear interactions between the embedded objects, and (ii) handle multiple input sources---user, interaction history, target item, and potentially other features---naturally via concatenation and projection. These $n_l$ hidden layers (each with $n_h$ neurons) further transform the inputs to a combined representation $\hatmat{x}^{(i)}_{u,t}$ which is used to perform the final classification.
+\subsection{Next-Item Classification}
+Given the embedded user $\mat{x}_u$ and memory state $\mat{h}_{u,t}$, we seek to recommend an item $i \in I$. It is common to perform this item recommendation using dot products between embeddings; this can be interpreted as finding items with maximal cosine similarity. Here, we experiment with recommendation via $n_l$ fully-connected hidden layers, each with $n_h$ nonlinear activation units, leading to a softmax classifier with weights $\mat{w}_c$ at the top. Although we lose some ``spatial'' interpretability, this approach has the advantage of being able to (i) capture non-linear interactions between the embedded objects, and (ii) handle multiple input sources---user, interaction history, target item, and potentially other features---naturally via concatenation and projection. These  hidden layers further transform the inputs to a combined representation $\hatmat{x}^{(i)}_{u,t}$ which is used to obtain unnormalized probabilities $\hat{p}(i|\hatmat{x}^{(i)}_{u,t}) = \exp(-\mat{w}_c^\top\hatmat{x}^{(i)}_{u,t})$. 
    
 \subsection{Training via Candidate Sampling}
 \label{sec:training}
 The entire model---embeddings, GRU cells and hidden layers---can be trained via standard backpropagation using an appropriate loss function. Unfortunately, standard loss functions, such as the softmax and logistic, become computationally infeasible to compute given the large item sets $I$ common in recommendation settings.
 
-To address this problem, we train our models using \emph{candidate sampling}~\cite{TFCandidateSampling}---the loss is evaluated against a small set of candidate or contrastive classes instead of over $I$. In  this work, we used the recently-proposed sampled softmax used in neural translation~\cite{Jean2015}\footnote{The sampled softmax achieved better scores compared to Noise Contrastive Estimation and the sampled logistic in our preliminary trials.} and a simple uniform distribution $Q(i|\hatmat{x}_{u,t}) = 1/I$ to form the candidate set $S$, resulting in an augmented loss function,
+To address this problem, we train the DRNN using \emph{candidate sampling}~\cite{TFCandidateSampling}---the loss is evaluated against a small set of candidate or contrastive classes instead of over $I$. In  this work, we used the recently-proposed sampled softmax used in neural translation~\cite{Jean2015}\footnote{The sampled softmax achieved better scores compared to Noise Contrastive Estimation and the sampled logistic in our preliminary trials.} and a simple uniform distribution $Q(i|\hatmat{x}_{u,t}) = 1/I$ to form the candidate set $S$, resulting in an augmented loss function,
 \begin{align}
 	l_{\textsc{sm}}(\hatmat{x}_{u,t}, y) = -\mat{w}_c^{\top}\hatmat{x}^{(y)}_{u,t} + \log \frac{\sum_{j\in S} \exp(\mat{w}_c^{\top}\hatmat{x}^{(j)}_{u,t} - \log|I|)}{|I|} 
 \end{align}
-where $\mat{w}_c$ are the classifier weights, $y = i_{u,t+1}$ is the target item observed at time $t+1$ and $\hatmat{x}_{u,t}^{(j)}$ is the top-level combined representation obtained by feeding the model with the tuple $(u, V_{u,t}, j)$.
+where $y = i_{u,t+1}$ is the target item observed at time $t+1$ and $\hatmat{x}_{u,t}^{(j)}$ is the top-level combined representation obtained by feeding the model with the tuple $(u, V_{u,t}, j)$.
 
 \section{Experiments}
 In this section, we report on experiments comparing the DRNN to a baseline Markov chain (MC) and the tensor Factorized Personalized Markov Chain (FPMC)~\cite{Rendle2010}. In addition, we constructed a deep neural network (DNN) identical to the DRNN, but without the memory cells; this allowed us to isolate the effect of capturing long-term temporal dependencies. Source code of our FPMC implementation (in Julia) and deep models (in Python/Tensorflow) is available at \url{http://xxx.xxx.xxx/xxx}.
@@ -343,7 +338,7 @@ We adopt the experimental setup outlined in \cite{Rendle2010};  given users and 
 \vspace{2mm}
 \noindent\textbf{Model Training and Testing:} To test the variability of the methods, we performed a variant of 10-fold cross-validation where 90\% of the \emph{last novel} items were used for testing and 10\% for validation. For each test partition, we compute the average scores across all sequences. Early stopping was used when training FPMC, DNN and DRNN, i.e., training was halted when the HLU computed on the validation set did not improve after 1000 positive training samples. A maximum of $2\times 10^6$ iterations was permitted for FPMC, and $2\times 10^4$ iterations for both DNN and DRNN. Optimization of the deep models was performed using the Adam algorithm~\cite{Kingma2015} with a learning rate of $10^{-3}$ with 100-sample mini-batches and 16 sampled candidate classes.
 
-\subsection{Performance Results}
+\subsection{Results}
 \begin{figure}
 \includegraphics[width=8cm]{images/PerfBoxplots}		
 \caption{Performance scores on the MSWeb and Assistments'15 datasets. On both datasets, the DRNN achieves the best scores, indicating the importance of long-term dependencies for the sequential recommendation task.}
@@ -353,7 +348,7 @@ Fig. \ref{fig:PerfResults} summarizes the scores achieved by the compared method
 
 Turning our attention to the other methods, the DNN and FPMC perform similarly; FPMC achieves slightly better scores on MSWeb, and DNN is better on Assistments'15. However, the differences were not statistically significant. Interestingly, we see that the simple MC outperformed both FPMC and DNN on Assistments'15 (significant at $\alpha = 1\%$). Under Markovian conditions, it is possible that the dense  global MC matrix lent itself well to recommendation in the relatively structured setting of next problem-set prediction, counteracting any benefit from user personalization. %That said, the higher DRNN scores suggest the benefit of taking sequential order into consideration when making predictions in this domain.
 
-\subsection{Sequence Length Effects}
+
 \begin{figure}
 \centering
 \includegraphics[width=8cm]{images/SeqLenPerfAnnotated}		
@@ -361,16 +356,18 @@ Turning our attention to the other methods, the DNN and FPMC perform similarly; 
 \label{fig:SeqLenResults}
 \end{figure}
 
-To better understand the observed performance differences, we binned the sequences into three partitions: short, medium and long sequences for each dataset. The average HLU scores in each bin (Fig \ref{fig:SeqLenResults}) fell as length increased, i.e., recommending novel items for longer sequences was more difficult. This was not an side-effect of the task, since filtering out non-novel items from the ranking computation did not significantly change the relative score differences. Instead, the downward trend was possibly caused by data sparsity---the datasets are dominated by shorter sequences, as illustrated by the histogram plots in Fig. \ref{fig:SeqLenResults}. Setting aside this effect, the gains from using memory were achieved on the short and medium length sequences. On longer sequences, performance was comparable to the Markov methods (care should be taken when comparing these scores since the set of sequences they correspond to is small). 
+\vspace{2mm}
+\noindent\textbf{Sequence Length Effects:} To better understand the observed performance differences, we binned the sequences into three partitions: short, medium and long sequences for each dataset. Fig \ref{fig:SeqLenResults} shows that average HLU fell as length increased, i.e., recommending novel items for longer sequences was more difficult. This was not an side-effect of the task, since filtering out non-novel items from the ranking computation did not significantly change the relative score differences. Instead, the downward trend was possibly caused by data sparsity---the datasets are dominated by shorter sequences, as illustrated by the histogram plots in Fig. \ref{fig:SeqLenResults}. Setting aside this effect, the gains from using memory were achieved on the short and medium length sequences. On longer sequences, performance was comparable to the Markov methods. 
 
-\subsection{Embedding Size Effects}
+%\subsection{Embedding Size Effects}
 \begin{figure}
 \centering
 \includegraphics[width=8cm]{images/EmbPerf}		
 \caption{DRNN and FPMC performance with different embedding sizes (32, 64 and 128). Compared to FPMC, DRNN performance improved more sharply with larger embeddings on both datasets. At $n_\textsc{emb} = 32$, FPMC outperformed DRNN on Assistments'15, but otherwise, DRNN achieved  higher HLU and F1 scores.}
 \label{fig:EmbResults}
 \end{figure}
-In preliminary trials, we found DRNN to be highly influenced by the embedding and memory cell sizes. We conducted additional runs with FPMC and DRNN with $n_\textsc{emb} \in \{ 32, 64, 128\}$. To ease comparison, the memory cell and embedding sizes were set to be equal. Fig \ref{fig:EmbResults} shows DRNN's performance improved with embedding size, but the relative differences were greater compared to FPMC. The fact that FPMC significantly outperformed DRNN on Assistments'15 at $n_\textsc{emb} = 32$ suggests having a sufficiently large embedding/memory size is important. However, this need should be balanced against computational cost in view of diminishing returns; on  MSWeb, the increase from 64 to 128 only led to a marginal $\sim 4\%$ increase in HLU score.
+\vspace{2mm}
+\noindent\textbf{Embedding Size Effects: }In preliminary trials, we found DRNN to be highly influenced by the embedding and memory cell sizes. We conducted additional runs with FPMC and DRNN with $n_\textsc{emb} \in \{ 32, 64, 128\}$. To ease comparison, the memory cell and embedding sizes were set to be equal. Fig \ref{fig:EmbResults} shows DRNN's performance improved with embedding size, but the relative differences were greater compared to FPMC. The fact that FPMC significantly outperformed DRNN on Assistments'15 at $n_\textsc{emb} = 32$ suggests having a sufficiently large embedding/memory size is important. However, this need should be balanced against computational cost in view of diminishing returns; on  MSWeb, the size increase from 64 to 128 led to a marginal $\sim 4\%$ increase in HLU.
 
 
 %
@@ -448,7 +445,7 @@ In preliminary trials, we found DRNN to be highly influenced by the embedding an
 %Need a Large Scale Experiment here! 
 
 \section{Summary and Conclusions}
-This paper presented DRNN, a deep recurrent neural model for sequential recommendation. Our experiments showed that DRNN outperformed a standard deep neural network without memory and a state-of-the-art tensor factorized model on the MSWeb and Assistments'15 datasets. These results indicate that capturing long-term dependencies is necessary for making accurate item recommendations in the sequential setting. Moving forward, the DRNN can be extended in several interesting ways; most notably, it is easily applied to cold-start settings by replacing the embedding lookups with inputs for relevant side-information. 
+This paper presented DRNN, a deep recurrent neural model for sequential recommendation. Our experiments showed that DRNN outperformed a standard deep neural network without memory and a state-of-the-art tensor factorized model on the MSWeb and Assistments'15 datasets. These results indicate that capturing long-term dependencies is necessary for making accurate item recommendations in the sequential setting. Moving forward, the DRNN can be extended in several interesting ways; for example, it is easily applied to cold-start settings by replacing the embedding lookups with inputs for relevant side-information. 
 
 
 %ACKNOWLEDGMENTS are optional
