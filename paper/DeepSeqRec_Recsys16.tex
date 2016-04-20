@@ -186,7 +186,7 @@
 
 \maketitle
 \begin{abstract}
-Many recommendation settings have a strongly sequential nature.  For example, in online education tutoring, student knowledge is dynamic and  recently completed problem sets are the most relevant for recommending future problem sets. Similarly, online web browsing sessions are highly contextual and recent user site visits are strongly  indicative of future browsing interests.  Most existing sequential recommendation methods focus on Markov models and tensor-factorized extensions; while these methods do capture sequential context, they cannot easily capture long-term dependencies due to their Markov assumption. We hypothesize that long-term dependencies, and not just the last user interaction, is critical for forming accurate recommendations. In this paper, we propose and evaluate a Deep Recurrent Neural Network (DRNN) for sequential item recommendation that uses gated recurrent memory units (GRUs) to learn latent contexts that compress user interaction histories.  In a comparative evaluation on educational and web datasets, we show that DRNN outperforms a deep network without long short-term memory as well as a state-of-the-art tensor factorized personalized Markov chain (FPMC), thus demonstrating the importance of learning long-term dependencies in sequential recommendation.
+Many recommendation settings have a sequential nature.  For example, in online education tutoring, student knowledge is dynamic and recently completed problem sets are relevant for recommending future problem sets. Similarly, online web browsing sessions are highly contextual and historical user site visits are indicative of future browsing interests.  Most existing sequential recommendation methods focus on Markov models and tensor-factorized extensions; while these methods do capture sequential context, they cannot easily capture long-term dependencies due to their Markov assumption. We hypothesize that long-term dependencies, and not just the last user interaction, is critical for forming accurate recommendations. In this paper, we propose and evaluate a Deep Recurrent Neural Network (DRNN) (Fig. \ref{fig:ModelArch}) for sequential item recommendation that uses gated recurrent memory units (GRUs) to learn latent contexts that compress user interaction histories.  In a comparative evaluation on educational and web datasets, we show that DRNN outperforms a deep network without long short-term memory as well as a state-of-the-art tensor factorized personalized Markov chain (FPMC), thus demonstrating the importance of learning long-term dependencies in sequential recommendation.
 \end{abstract}
 
 
@@ -270,17 +270,7 @@ pairwise, but not higher-order, historical dependencies.
 
 In this paper, our primary hypothesis is that long-term dependencies are
 important for making relevant sequential recommendations. Yet
-extending existing methods to make them higher-order Markov to capture
-such dependencies is generally impractical due to the memory and
-computational requirements of learning higher-order (factorized)
-tensors.  However, recent developments in deep recurrent neural
-networks (DRNNs) provide an efficient linear space and time method of
-learning long-term dependencies via gated recurrent memory units
-(GRUs)~\cite{Cho2014}; specifically, GRUs do not aim to model all
-possible higher-order historical interactions, but instead learn how
-to embed histories into a latent space and what information to
-propagate in a linear sequential fashion.  To this end, we propose a
-GRU-based DRNN for sequential recommendation and 
+extending existing methods to make them higher-order Markov to capture such dependencies is generally impractical due to the memory and computational requirements of learning higher-order (factorized) tensors.  However, recent developments in deep recurrent neural networks (DRNNs) provide an efficient linear space and time method of learning long-term dependencies via gated recurrent memory units (GRUs)~\cite{Cho2014}; specifically, GRUs do not aim to model all possible higher-order historical interactions, but instead learn how to embed histories into a latent space and what information to propagate in a linear sequential fashion.  To this end, we propose a GRU-based DRNN for sequential recommendation and demonstrate that the DRNN outperforms variants of the Markov chain models and also show that removing the model's memory leads to performance similar to FPMC. Our results thus support our hypothesis that learning long-term dependencies can improve sequential recommendations.
 %
 %and propose a deep recurrent neural
 %network (DRNN) for sequential recommendation. Specifically, the DRNN
@@ -297,10 +287,7 @@ GRU-based DRNN for sequential recommendation and
 %approximate softmax loss~\cite{Jean2015} that sidesteps the problem of
 %large item sets.
 %We not only
-demonstrate that the DRNN outperforms variants of the Markov chain
-models and also show that removing the model's memory leads to performance
-similar to FPMC. Our results thus support our hypothesis that learning
-long-term dependencies can improve sequential recommendations.
+
 %
 %memory was indeed
 %responsible for the improved recommendations.
@@ -324,7 +311,7 @@ At the first component layer, user and item symbols are mapped to real vectors (
 \begin{figure}
 \centering
 	\includegraphics[width=8cm]{images/GRU2}
-	\caption{The model's memory is composed of Gated Recurrent Units (GRUs) that selectively update or reset their hidden states via two gates: the update gate $z$ determines whether the internal state $h$ is replaced by a new hidden state $\tilde{h}$. The reset gate $r$ controls how much of the previous hidden state to forget. %Although sometimes shown as discrete gates, the updates/resets are linear interpolations using parameters learnt from data. 
+	\caption{The model's memory is composed of Gated Recurrent Units (GRUs) that selectively update or reset their hidden states via two gates for each cell $k$: the update gate $z_k$ the level at which the internal state $h$ is replaced by a new hidden state $\tilde{h}$ (a weighted average). The reset gate $r_k$ controls how much of the previous hidden state to forget. %Although sometimes shown as discrete gates, the updates/resets are linear interpolations using parameters learnt from data. 
 	After a user's interaction history is fed into the cells, the final hidden state is relayed to higher layers.
 	}
 	\label{fig:GRU}
@@ -355,7 +342,7 @@ Given the embedded user $\mat{x}_u$ and memory state $\mat{h}_{u,t}$, we seek to
 \label{sec:training}
 The entire model---embeddings, GRU cells and hidden layers---can be trained via standard backpropagation using an appropriate loss function. Unfortunately, standard loss functions, such as the softmax and logistic, become computationally infeasible  given the large item sets $I$ common in recommendation settings.
 
-To address this problem, we train the DRNN using {candidate sampling}---the loss is evaluated against a small set of candidate or contrastive classes instead of over $I$. In  this work, we used the recently-proposed sampled softmax used in neural translation~\cite{Jean2015}\footnote{The sampled softmax achieved better scores compared to Noise Contrastive Estimation and the sampled logistic in our preliminary trials.} and a simple uniform distribution $Q(i|\hatmat{x}^{(j)}_{u,t}) = 1/|I|$ to form the candidate set $S$, which yields an augmented loss function,
+To address this problem, we train the DRNN using {candidate sampling}---the loss is evaluated against a small set of candidate or contrastive classes instead of over $I$. In  this work, we used the recently-proposed sampled softmax used in neural translation~\cite{Jean2015}\footnote{The sampled softmax achieved better scores compared to Noise Contrastive Estimation and the sampled logistic in our preliminary trials.}. With a simple discrete uniform distribution $Q(i|\hatmat{x}^{(j)}_{u,t}) = 1/|I|$ to form the candidate set $S$, we apply an augmented loss function that corrects for the sampling approximation,
 \begin{align}
 	l_{\textsc{sm}}(\hatmat{x}_{u,t}, y) = -\mat{w}_c^{\top}\hatmat{x}^{(y)}_{u,t} + \log \frac{\sum_{j\in S} \exp(\mat{w}_c^{\top}\hatmat{x}^{(j)}_{u,t} - \log|I|)}{|I|} 
 \end{align}
@@ -415,7 +402,10 @@ Turning our attention to the other methods, the DNN and FPMC perform similarly; 
 %Need a Large Scale Experiment here! 
 
 \section{Summary and Conclusions}
-This work presented and empirically evaluated DRNN, a deep recurrent neural model for sequential recommendation that leverages on GRU memory cells to selectively retain information about a user's interaction history. Experiments on two datasets showed that the DRNN outperformed a memoryless deep neural network and a state-of-the-art tensor factorized Markov model. These results lend support to the notion that capturing long-term dependencies is important for making relevant recommendations. Moving forward, the DRNN can be extended in several interesting ways; for example, it is straightforwardly applied to cold-start settings (e.g., for book recommendation~\cite{Pera2013}) by replacing the embedding lookups with inputs for relevant side-information (book content and user features). If needed, feature  representations can been learnt via deep convolutional nets trained on unstructured data. 
+This work presented and empirically evaluated DRNN, a deep recurrent neural model for sequential recommendation that leverages on GRU memory cells to selectively retain information from a user's interaction history. Experiments on two datasets showed that the DRNN outperformed a memoryless deep neural network and a state-of-the-art tensor factorized Markov model. These results lend support to the notion that capturing long-term dependencies is important for making relevant recommendations. Moving forward, it would be interesting to apply DRNN to more specialized sequential domains such as point-of-interest (POI) recommendation, which currently exploit geographic-specific properties, e.g., distance from current location~\cite{Ye2011}.
+
+
+%Moving forward, the DRNN can be extended in several interesting ways; for example, it is straightforwardly applied to cold-start settings (e.g., for book recommendation~\cite{Pera2013}) by replacing the embedding lookups with inputs for relevant side-information (book content and user features). If needed, feature  representations can been learnt via deep convolutional nets trained on unstructured data. 
 
 
 %ACKNOWLEDGMENTS are optional
