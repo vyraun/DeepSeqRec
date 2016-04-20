@@ -241,35 +241,12 @@ Real-world recommender systems are often required to make predictions not just o
 \keywords{Sequential Recommendation; Recurrent Neural Networks; Collaborative Filtering}
 
 \section{Introduction}
-\paragraph{Why is Sequential recommendation is important? examples?}
+In many domains, recommending relevant items depends not only on what was last interacted with (purchased, viewed or consumed), but on a history previous interactions. For example, in educational settings, a problem-set recommender that aims to maximize learning should take into account the student's progression and not only performance on the last test taken. In this and other applications, sequential order plays a role in determining what should be prescribed next. Unfortunately, this fact is at odds with existing methods such as factorized Markov Chains~\cite{Rendle2010} and metric embedding~\cite{Feng2015} that rely heavily on pairwise transitions. 
 
+In this paper, we leverage on recent developments in deep learning and propose a deep recurrent neural network for sequential recommendation. Specifically, the DRNN uses gated recurrent memory cells~\cite{Cho2014} capable of retaining information given long sequences, and is trained using an approximate softmax loss~\cite{Jean2015} that sidesteps the problem of large item sets. We argue that long-term dependencies are important for making relevant recommendations, and demonstrate that the DRNN outperforms the Markov chain models. Removing the model's memory leads to performance similar to FPMC, demonstrating that memory was indeed responsible for the improved recommendations.  
 
-\paragraph{Existing methods?} 
-\begin{itemize}
-\item Tensor factorization: non-convex, requires tuning (hyperparameters, latent dimensionality), difficult for online use.
-\item Nearest Neighbor methods via specialized similarity scores for time series: ad-hoc similarity scores, 
-\end{itemize}
+%\cite{Yap2012} use sequential pattern mining, basically a nearest-neighbor approach using a personalized score. Database method that scales with the number of observed sequences. 
 
-\paragraph{Our contributions?}
-
-
-\paragraph{How is it novel?} 
-
-\paragraph{Main messages?}
-
-\paragraph{Paper organization?}
-
-
-\section{Background and Related Work}
-What is the formal definition of the work?
-
-What existing methods are there?
-\begin{itemize}
-\item Rendle, S., Freudenthaler, C., Schmidt-Thieme, L. (2010). Factorizing personalized Markov chains for next-basket recommendation. Proceedings of the 19th International Conference on World Wide Web - WWW'10, 811.
-\item Feng, S., Li, X., Zeng, Y., Cong, G., Chee, Y. M., Yuan, Q. (2015). Personalized Ranking Metric Embedding for Next New POI Recommendation. IJCAI International Joint Conference on Artificial Intelligence, (IJCAI), 2069-2075.
-\item Yap, G. E., Li, X. L., Yu, P. S. (2012). Effective next-items recommendation via personalized sequential pattern mining. Lecture Notes in Computer Science (Including Subseries Lecture Notes in Artificial Intelligence and Lecture Notes in Bioinformatics), 7239 LNCS(PART 2), 48-64.
-\item Cheng, C., Yang, H., Lyu, M. R., King, I. (2013). Where you like to go next: Successive point-of-interest recommendation. IJCAI International Joint Conference on Artificial Intelligence, 2605-2611.
-\end{itemize}
  
 \section{Deep Sequential Recommender}
 \begin{figure}
@@ -279,10 +256,10 @@ What existing methods are there?
 	\label{fig:ModelArch}
 \end{figure}
 
-In sequential recommendation, we aim to suggest promising next items $y = i_{u,t+1} \in I$ given tuples $(u, V_{u,t})$ of users $u \in U$ and interaction histories $V_{u,t} = (i_{u,t_s}, i_{u,t_s + 1}, \dots$ $, i_{u,t})$ consisting of previous items $i_{u,t} \in I$. In this work, our goal is to develop a model capable of making full use of user interaction histories to enable better personalized recommendations. To this end, we leverage on recent advances in deep learning and propose a deep recurrent neural network (DRNN) (\ref{fig:ModelArch}) that comprises three main components arranged in a layer-wise fashion from bottom to top: (i) embedding lookups, (ii) memory cells, and (iii) hidden layers and a softmax classifier. 
+In sequential recommendation, we aim to suggest promising next items $y = i_{u,t+1} \in I$ given tuples $(u, V_{u,t})$ of users $u \in U$ and interaction histories $V_{u,t} = (i_{u,t_s}, i_{u,t_s + 1}, \dots$ $, i_{u,t})$ consisting of previous items $i_{u,t} \in I$. In this work, our goal is to develop a model capable of capturing relevant information from user interaction histories to enable better personalized recommendations. To achieve this, our deep recurrent neural model (Fig. \ref{fig:ModelArch}) comprises three main components arranged in a layer-wise fashion from bottom to top: (i) embedding lookups, (ii) memory cells, and (iii) hidden layers and a softmax classifier. 
 
 \subsection{Embedding Symbols as Vectors}
-At the first stage, user and item symbols are mapped to real  vectors (embeddings). This mapping is implemented as a table lookup where each user $u$ is associated with a corresponding vector $\mat{x}_u \in \mathbb{R}^{n_u}$. Likewise, each item $i$ has a associated $\mat{x}_i \in \mathbb{R}^{n_i}$, allowing the user's interaction history $V_{u,t}$ to be represented as $X_{u,t} = (\mat{x}_{u,t_s}, \mat{x}_{u,t_s + 1}, \dots, \mat{x}_{u,t})$. Target or sampled items (explained in Section \ref{sec:training}) are embedded as $\mat{x}^{(j)} \in \mathbb{R}^{n_j}$. The sizes of these vectors, $n_{u}, n_i$, and $n_j$, are model parameters.
+At the first stage, user and item symbols are mapped to real  vectors (embeddings). This mapping is implemented as a table lookup where each user $u$ is associated with a corresponding vector $\mat{x}_u \in \mathbb{R}^{n_u}$. Likewise, each item $i$ has a associated $\mat{x}_i \in \mathbb{R}^{n_i}$, allowing the user's interaction history $V_{u,t}$ to be represented as $X_{u,t} = (\mat{x}_{u,t_s}, \mat{x}_{u,t_s + 1}, \dots, \mat{x}_{u,t})$. Target or sampled items $j$ (explained in Section \ref{sec:training}) are embedded as $\mat{x}^{(j)} \in \mathbb{R}^{n_j}$. The sizes of these vectors, $n_{u}, n_i$, and $n_j$, are model parameters.
 
 \subsection{Memory: Gated Recurrent Units}
 \begin{figure}
@@ -311,7 +288,7 @@ where $\odot$ denotes element-wise multiplication. The cell's reset gate $r^{(j)
 The previous hidden state is effectively dropped when the reset gate's value nears zero, and as such, cells that learn short-term dependencies  have active reset gates. In comparison, cells that learn to model long-term dependencies have active update gates~\cite{Cho2014}. Our model uses an array of $n_\textsc{gru}$ cells. The number of layers can also be varied but we found a single layer sufficient for our experiments. Effectively, the memory cells ``compress'' the user interaction history $X_{u,t} = (\mat{x}_{u,t_s}, \mat{x}_{u,t_s + 1}, \dots, \mat{x}_{u,t})$ to a real vector $\mat{h}_{u,t}$.
 
 \subsection{Next-Item Classification}
-Given the embedded user $\mat{x}_u$ and memory state $\mat{h}_{u,t}$, we seek to recommend an item $i \in I$. It is common to perform this item recommendation using dot products between embeddings; this can be interpreted as finding items with maximal cosine similarity. Here, we experiment with recommendation via $n_l$ fully-connected hidden layers, each with $n_h$ nonlinear activation units, leading to a softmax classifier with weights $\mat{w}_c$ at the top. Although we lose some ``spatial'' interpretability, this approach has the advantage of being able to (i) capture non-linear interactions between the embedded objects, and (ii) handle multiple input sources---user, interaction history, target item, and potentially other features---naturally via concatenation and projection. These  hidden layers further transform the inputs to a combined representation $\hatmat{x}^{(i)}_{u,t}$ which is used to obtain unnormalized probabilities $\hat{p}(i|\hatmat{x}^{(i)}_{u,t}) = \exp(-\mat{w}_c^\top\hatmat{x}^{(i)}_{u,t})$. 
+Given the embedded user $\mat{x}_u$ and memory state $\mat{h}_{u,t}$, we seek to recommend an item $i \in I$. It is common to perform this item recommendation using dot products between embeddings; this can be interpreted as finding items with maximal cosine similarity. Here, we experiment with recommendation via $n_l$ fully-connected hidden layers, each with $n_h$ nonlinear activation units, leading to a softmax classifier with weights $\mat{w}_c$ at the top. Although we lose some ``spatial'' interpretability, this approach has the advantage of being able to (i) capture non-linear interactions between the embedded objects, and (ii) handle multiple input sources---user, interaction history, target item, and potentially other features---naturally via concatenation and projection. These  hidden layers further transform the inputs to a combined representation $\hatmat{x}^{(j)}_{u,t}$ which is used to obtain unnormalized probabilities $\hat{p}(j|\hatmat{x}^{(j)}_{u,t}) = \exp(-\mat{w}_c^\top\hatmat{x}^{(j)}_{u,t})$. 
    
 \subsection{Training via Candidate Sampling}
 \label{sec:training}
@@ -338,18 +315,20 @@ We adopt the experimental setup outlined in \cite{Rendle2010};  given users and 
 \vspace{2mm}
 \noindent\textbf{Model Training and Testing:} To test the variability of the methods, we performed a variant of 10-fold cross-validation where 90\% of the \emph{last novel} items were used for testing and 10\% for validation. For each test partition, we compute the average scores across all sequences. Early stopping was used when training FPMC, DNN and DRNN, i.e., training was halted when the HLU computed on the validation set did not improve after 1000 positive training samples. A maximum of $2\times 10^6$ iterations was permitted for FPMC, and $2\times 10^4$ iterations for both DNN and DRNN. Optimization of the deep models was performed using the Adam algorithm~\cite{Kingma2015} with a learning rate of $10^{-3}$ with 100-sample mini-batches and 16 sampled candidate classes.
 
-\subsection{Results}
-\begin{figure}
+\begin{figure}[t]
+\centering 
 \includegraphics[width=8cm]{images/PerfBoxplots}		
 \caption{Performance scores on the MSWeb and Assistments'15 datasets. On both datasets, the DRNN achieves the best scores, indicating the importance of long-term dependencies for the sequential recommendation task.}
 \label{fig:PerfResults}
 \end{figure}
+
+\subsection{Results}
 Fig. \ref{fig:PerfResults} summarizes the scores achieved by the compared methods. DRNN outperforms the other methods on both datasets; the observed differences are statistically significant at the 1\% level (two-sample Kolmogorov-Smirnov test, Holm-Sidak corrected p-values). Compared to the memory-less DNN, the recurrent model achieves 15-20\% higher scores, providing evidence that capturing long-term interactions improves recommendation on sequential tasks. 
 
 Turning our attention to the other methods, the DNN and FPMC perform similarly; FPMC achieves slightly better scores on MSWeb, and DNN is better on Assistments'15. However, the differences were not statistically significant. Interestingly, we see that the simple MC outperformed both FPMC and DNN on Assistments'15 (significant at $\alpha = 1\%$). Under Markovian conditions, it is possible that the dense  global MC matrix lent itself well to recommendation in the relatively structured setting of next problem-set prediction, counteracting any benefit from user personalization. %That said, the higher DRNN scores suggest the benefit of taking sequential order into consideration when making predictions in this domain.
 
 
-\begin{figure}
+\begin{figure}[t]
 \centering
 \includegraphics[width=8cm]{images/SeqLenPerfAnnotated}		
 \caption{(Top) HLU scores with different sequence lengths. Using memory was particularly effective for short and medium length sequences. All four models were hampered by longer sequences, possibly due to data sparsity.  (Bottom) The histogram plots show that datasets comprised mostly short sequences and long sequences were rare.}
@@ -360,7 +339,7 @@ Turning our attention to the other methods, the DNN and FPMC perform similarly; 
 \noindent\textbf{Sequence Length Effects:} To better understand the observed performance differences, we binned the sequences into three partitions: short, medium and long sequences for each dataset. Fig \ref{fig:SeqLenResults} shows that average HLU fell as length increased, i.e., recommending novel items for longer sequences was more difficult. This was not an side-effect of the task, since filtering out non-novel items from the ranking computation did not significantly change the relative score differences. Instead, the downward trend was possibly caused by data sparsity---the datasets are dominated by shorter sequences, as illustrated by the histogram plots in Fig. \ref{fig:SeqLenResults}. Setting aside this effect, the gains from using memory were achieved on the short and medium length sequences. On longer sequences, performance was comparable to the Markov methods. 
 
 %\subsection{Embedding Size Effects}
-\begin{figure}
+\begin{figure}[t]
 \centering
 \includegraphics[width=8cm]{images/EmbPerf}		
 \caption{DRNN and FPMC performance with different embedding sizes (32, 64 and 128). Compared to FPMC, DRNN performance improved more sharply with larger embeddings on both datasets. At $n_\textsc{emb} = 32$, FPMC outperformed DRNN on Assistments'15, but otherwise, DRNN achieved  higher HLU and F1 scores.}
