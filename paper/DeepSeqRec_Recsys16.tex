@@ -411,82 +411,11 @@ Turning our attention to the other methods, the DNN and FPMC perform similarly; 
 \noindent\textbf{Embedding Size Effects: }In preliminary trials, we found DRNN to be highly influenced by the embedding and memory cell sizes. We conducted additional runs with FPMC and DRNN with $n_\textsc{gru} = n_\textsc{emb} \in \{ 32, 64, 128\}$. Fig \ref{fig:EmbResults} shows DRNN's performance improved with embedding size, but the relative differences were greater compared to FPMC. The fact that FPMC significantly outperformed DRNN on Assistments'15 at $n_\textsc{emb} = 32$ suggests having a sufficiently large embedding/memory size is essential. In practice, this need should be balanced against computational cost in view of diminishing returns; on  MSWeb, the size increase from 64 to 128 led to a marginal $\sim 4\%$ increase in HLU.
 
 
-%
-%\begin{table}
-%\begin{center} 
-%\begin{tabular}{ |l|l|c|c|c|c|}
-%\hline
-%\multirow{2}{*}{\textbf{Dataset}} & \multirow{2}{*}{\textbf{Score}} & \multicolumn{4}{ |c| }{\textbf{Method}} \\  \cline{3-6}
-%& & \textbf{MC} & \textbf{FPMC} & \textbf{ANN} & \textbf{LSTM} \\
-%\hline
-% \multirow{4}{*}{gowalla} 
-% & HLU & \textbf{0.160} & 0.133 & 0.130 & 0.051 \\
-% & Prec & \textbf{0.033} & 0.025  & 0.027 & 0.013 \\
-% & Rec & \textbf{0.166} & 0.124 & 0.136 &  0.066 \\
-% & F1 & \textbf{0.055} & 0.041 & 0.045 & 0.022 \\
-% \hline
-% \multirow{4}{*}{msweb} 
-% & HLU & 0.485  & 0.522  & 0.489 & \textbf{0.566} \\
-% & Prec & 0.107 & 0.109 & 0.106 & \textbf{0.124} \\
-% & Rec & 0.537 & 0.546 & 0.528 & \textbf{0.621} \\
-% & F1 & 0.179 & 0.182 & 0.176 & \textbf{0.207} \\
-% \hline
-% \multirow{4}{*}{assist15} 
-% & HLU & 0.440 & 0.438  & 0.412 & \textbf{0.535} \\
-% & Prec & 0.094 & 0.092  & 0.086 & \textbf{0.113} \\
-% & Rec & 0.471 & 0.458  & 0.458 & \textbf{0.568} \\
-% & F1 & 0.157 & 0.153 & 0.430 & \textbf{0.189} \\
-% \hline
-%\hline
-%\end{tabular}
-%\caption{Novel Item Recommendation}
-%\end{center} 
-%\end{table}
-
-
-%
-%\begin{table}
-%\begin{center} 
-%\caption{User Split Test}
-%\begin{tabular}{ |l|l|c|c|c|}
-%\hline
-%\multirow{2}{*}{\textbf{Dataset}} & \multirow{2}{*}{\textbf{Score}} & \multicolumn{3}{ |c| }{\textbf{Method}} \\  \cline{3-5}
-%& & \textbf{MC} & \textbf{BMA} & \textbf{BMA-Gb} \\
-%\hline
-% \multirow{4}{*}{gowalla} 
-% & hlu & 0.160 & 0.162 & \textbf{0.165} \\
-% & prec & 0.035 & 0.035 & \textbf{0.036 }\\
-% & rec & 0.174 & 0.176 & \textbf{0.181} \\
-% & f1 & 0.058 & 0.059 & \textbf{0.060} \\
-% \hline
-% \multirow{4}{*}{msweb} 
-%  & hlu & 0.541 & \textbf{0.545} & 0.540 \\
-% & prec & 0.116 & \textbf{0.116} & 0.115 \\
-% & rec & 0.581 & \textbf{0.582} & 0.577 \\
-% & f1 & 0.194 & \textbf{0.194} & 0.192 \\
-% \hline
-% \multirow{4}{*}{assist15} 
-% & hlu & 0.372 & \textbf{0.453} & 0.375 \\
-% & prec & 0.076 & \textbf{0.095} & 0.077 \\
-% & rec & 0.381 & \textbf{0.473} & 0.383 \\
-% & f1 & 0.127 & \textbf{0.158} & 0.128 \\
-% \hline
-%%  \multirow{4}{*}{retail} 
-%% & HLU & 0.005  & 0.019 & -1.000 \\
-%% & Prec & 0.005  & 0.007 & -1.000 \\
-%% & Rec & 0.004  & 0.015 & -1.000 \\
-%% & F1 & 0.004  & 0.010 & -1.000 \\
-%% \hline
-%\hline
-%\end{tabular}
-%\end{center} 
-%\end{table}
-
 %\subsection{Large Scale Experiment}
 %Need a Large Scale Experiment here! 
 
 \section{Summary and Conclusions}
-This work presented and empirically evaluated DRNN, a deep recurrent neural model for sequential recommendation that leverages on GRU memory cells to selectively retain information about a users interaction history. Experiments on two datasets showed that the DRNN outperformed a memoryless deep neural network and a state-of-the-art tensor factorized Markov model. These results lend support to the notion that capturing long-term dependencies is  important for making accurate recommendations. Moving forward, the DRNN can be extended in several interesting ways; for example, it is straightforwardly applied to cold-start settings (e.g., for book recommendation~\cite{Pera2013}) by replacing the embedding lookups with inputs for relevant side-information (book content and user features). If needed, features representations can been learnt via deep convolutional nets trained on unstructured data. 
+This work presented and empirically evaluated DRNN, a deep recurrent neural model for sequential recommendation that leverages on GRU memory cells to selectively retain information about a user's interaction history. Experiments on two datasets showed that the DRNN outperformed a memoryless deep neural network and a state-of-the-art tensor factorized Markov model. These results lend support to the notion that capturing long-term dependencies is important for making relevant recommendations. Moving forward, the DRNN can be extended in several interesting ways; for example, it is straightforwardly applied to cold-start settings (e.g., for book recommendation~\cite{Pera2013}) by replacing the embedding lookups with inputs for relevant side-information (book content and user features). If needed, feature  representations can been learnt via deep convolutional nets trained on unstructured data. 
 
 
 %ACKNOWLEDGMENTS are optional
