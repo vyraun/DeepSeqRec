@@ -264,14 +264,14 @@ At the first stage, user and item symbols are mapped to real  vectors (embedding
 \subsection{Memory: Gated Recurrent Units}
 \begin{figure}
 \centering
-	\includegraphics[width=8cm]{images/GRU}
-	\caption{The model's memory is composed of Gated Recurrent Units (GRU) cells that selectively update or reset their hidden states via two gates: the update gate $z$ determines whether the internal state $h$ is replaced by a new hidden state $\tilde{h}$. The reset gate $r$ controls whether to disregard the previous hidden state. Although sometimes shown as discrete gates (as above), the updates/resets are weighted averages using parameters learnt from data. After the entire user interaction history is fed, and the final hidden state is relayed to higher layers.}
+	\includegraphics[width=8cm]{images/GRU2}
+	\caption{The model's memory is composed of Gated Recurrent Units (GRU) cells that selectively update or reset their hidden states via two gates: the update gate $z$ determines whether the internal state $h$ is replaced by a new hidden state $\tilde{h}$. The reset gate $r$ controls whether to disregard the previous hidden state. Although sometimes shown as discrete gates, the updates/resets are weighted sums using parameters learnt from data. After the entire user interaction history is fed, and the final hidden state is relayed to higher layers.}
 	\label{fig:GRU}
 \end{figure}
 
 The DRNN uses Gated Recurrent Unit (GRU)~\cite{Cho2014} (Fig. \ref{fig:GRU}), a streamlined variant of long short-term memory~\cite{Hochreiter1997}, that has become popular due to its simplicity and performance~\cite{jozefowicz2015empirical}. In contrast to the traditional recurrent cell that lack control over the evolution of  its hidden state, the GRU learns to operate two internal structures---the update and reset gates---that allow it to control what to remember and forget. More formally, a cell $k$ that has state $h_{t-1}^{(k)}$ and receives a new input $\mathbf{x}_t$ is updated via
 \begin{align}
-	h_t^{(k)} = (1-z_t^{(j)})h^{(k)}_{t-1} + z_t^{(j)}\tilde{h}_{t}^{(k)},
+	h_t^{(k)} = (1-z_t^{(k)})h^{(k)}_{t-1} + z_t^{(k)}\tilde{h}_{t}^{(k)},
 \end{align}
 which is a weighted average of its previous state and a  candidate activation $\tilde{h}_{t}^{(k)}$. This interpolation is controlled by the update gate $z_t^{(k)}$, which relies on two learnt parameters $\mat{W}_z$ and $\mat{U}_z$,
 \begin{align}
