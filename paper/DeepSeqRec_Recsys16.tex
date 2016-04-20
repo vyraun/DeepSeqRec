@@ -186,24 +186,7 @@
 
 \maketitle
 \begin{abstract}
-Many recommendation settings have a strongly sequential nature.  For
-example, in online education tutoring, student knowledge is dynamic
-and the most recently completed problem sets are most relevant for
-recommending future problem sets.  Similarly, online web browsing
-sessions are highly contextual and recent user site visits are highly
-indicative of future browsing interests.  Most existing
-sequential recommendation methods focus on Markov models and
-tensor-factorized extensions; while these methods do capture
-sequential context, they cannot easily capture long-term dependencies
-due to their Markov assumption.  In this paper, we propose and
-evaluate a Deep Recurrent Neural Network (DRNN) for sequential item
-recommendation that uses gated recurrent memory units (GRUs) to learn
-both long-term dependencies and latent contexts that compress user
-interaction histories.  In a comparative evaluation on educational and
-web datasets, we show that DRNN outperforms a deep network without
-long short-term memory as well as a state-of-the-art tensor factorized
-personalized Markov chain (FPMC), thus demonstrating the importance of
-learning long-term dependencies in sequential recommendation.
+Many recommendation settings have a strongly sequential nature.  For example, in online education tutoring, student knowledge is dynamic and  recently completed assignments are often the most relevant for recommending future problem sets. Similarly, online web browsing sessions are highly contextual and recent user site visits are strongly  indicative of future browsing interests.  Most existing sequential recommendation methods focus on Markov models and tensor-factorized extensions; while these methods do capture sequential context, they cannot easily capture long-term dependencies due to their Markov assumption.  In this paper, we propose and evaluate a Deep Recurrent Neural Network (DRNN) for sequential item recommendation that uses gated recurrent memory units (GRUs) to learn both long-term dependencies and latent contexts that compress user interaction histories.  In a comparative evaluation on educational and web datasets, we show that DRNN outperforms a deep network without long short-term memory as well as a state-of-the-art tensor factorized personalized Markov chain (FPMC), thus demonstrating the importance of learning long-term dependencies in sequential recommendation.
 \end{abstract}
 
 
@@ -255,7 +238,7 @@ learning long-term dependencies in sequential recommendation.
 % We no longer use \terms command
 %\terms{Theory}
 
-\keywords{Sequential Recommendation; Recurrent Neural Networks; Collaborative Filtering}
+\keywords{Sequential Recommendation; Recurrent Neural Networks; Long Short-term Memory}
 
 \section{Introduction}
 %In many domains, recommending relevant items depends not only on what was last interacted with (purchased, viewed or consumed), but on a history previous interactions. For example, in educational settings, a problem-set recommender that aims to maximize learning should take into account the student's progression and not only student performance on the last test taken. Unfortunately, this fact is at odds with existing methods such as factorized Markov Chains~\cite{Rendle2010} and metric embedding~\cite{Feng2015} that rely heavily on pairwise transitions. 
