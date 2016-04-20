@@ -409,7 +409,7 @@ Turning our attention to the other methods, the DNN and FPMC perform similarly; 
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=7.5cm]{images/SeqLenPerfAnnotated}		
+\includegraphics[width=7cm]{images/SeqLenPerfAnnotated}		
 \caption{(Top) HLU scores with different sequence lengths. Using memory was particularly effective for short and medium length sequences. All four models were hampered by longer sequences, possibly due to data sparsity.  (Bottom) The histogram plots show that datasets comprised mostly short sequences and long sequences were rare.}
 \label{fig:SeqLenResults}
 \end{figure}
@@ -420,12 +420,12 @@ Turning our attention to the other methods, the DNN and FPMC perform similarly; 
 %\subsection{Embedding Size Effects}
 \begin{figure}[t]
 \centering
-\includegraphics[width=7.5cm]{images/EmbPerf}		
+\includegraphics[width=7cm]{images/EmbPerf}		
 \caption{DRNN and FPMC performance with different embedding sizes (32, 64 and 128). Compared to FPMC, DRNN performance improved more sharply with larger embeddings on both datasets. At $n_\textsc{emb} = 32$, FPMC outperformed DRNN on Assistments'15, but otherwise, DRNN achieved  higher HLU and F1 scores.}
 \label{fig:EmbResults}
 \end{figure}
 \vspace{2mm}
-\noindent\textbf{Embedding Size Effects: }In preliminary trials, we found DRNN to be highly influenced by the embedding and memory cell sizes. We conducted additional runs with FPMC and DRNN with $n_\textsc{gru} = n_\textsc{emb} \in \{ 32, 64, 128\}$. Fig \ref{fig:EmbResults} shows DRNN's performance improved with embedding size, but the relative differences were greater compared to FPMC. The fact that FPMC significantly outperformed DRNN on Assistments'15 at $n_\textsc{emb} = 32$ suggests having a sufficiently large embedding/memory size is important. However, this need should be balanced against computational cost in view of diminishing returns; on  MSWeb, the size increase from 64 to 128 led to a marginal $\sim 4\%$ increase in HLU.
+\noindent\textbf{Embedding Size Effects: }In preliminary trials, we found DRNN to be highly influenced by the embedding and memory cell sizes. We conducted additional runs with FPMC and DRNN with $n_\textsc{gru} = n_\textsc{emb} \in \{ 32, 64, 128\}$. Fig \ref{fig:EmbResults} shows DRNN's performance improved with embedding size, but the relative differences were greater compared to FPMC. The fact that FPMC significantly outperformed DRNN on Assistments'15 at $n_\textsc{emb} = 32$ suggests having a sufficiently large embedding/memory size is essential. In practice, this need should be balanced against computational cost in view of diminishing returns; on  MSWeb, the size increase from 64 to 128 led to a marginal $\sim 4\%$ increase in HLU.
 
 
 %
@@ -503,7 +503,7 @@ Turning our attention to the other methods, the DNN and FPMC perform similarly; 
 %Need a Large Scale Experiment here! 
 
 \section{Summary and Conclusions}
-This work presented and empirically evaluated DRNN, a deep recurrent neural model for sequential recommendation that leverages on GRU memory cells to selective retain information about a users interaction history. Experiments on two datasets showed that the DRNN outperformed a memoryless deep neural network and the state-of-the-art tensor FPMC. These results lend support to the notion that capturing long-term dependencies can be important for making accurate recommendations. Moving forward, the DRNN can be extended in several interesting ways; for example, it is straightforwardly applied to cold-start settings (e.g., for book recommendation~\cite{Pera2013}) by replacing the embedding lookups with inputs for relevant side-information (book content and user features). In addition, features can been learnt via deep convolutional nets trained on unstructured data. 
+This work presented and empirically evaluated DRNN, a deep recurrent neural model for sequential recommendation that leverages on GRU memory cells to selective retain information about a users interaction history. Experiments on two datasets showed that the DRNN outperformed a memoryless deep neural network and a state-of-the-art tensor factorized Markov model. These results lend support to the notion that capturing long-term dependencies is  important for making accurate recommendations. Moving forward, the DRNN can be extended in several interesting ways; for example, it is straightforwardly applied to cold-start settings (e.g., for book recommendation~\cite{Pera2013}) by replacing the embedding lookups with inputs for relevant side-information (book content and user features). If needed, features representations can been learnt via deep convolutional nets trained on unstructured data. 
 
 
 %ACKNOWLEDGMENTS are optional
