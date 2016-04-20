@@ -54,7 +54,7 @@
 \DeclareMathOperator*{\argmin}{\arg\!\min}
 \DeclareMathOperator*{\argmax}{\arg\!\max}
 \newcommand{\mat}[1]{\mathbf{#1}}
-
+\newcommand{\hatmat}[1]{\hat{\mathbf{#1}}}
 
 \begin{document}
 
@@ -286,15 +286,18 @@ Problem formulation. Challenges when applying deep learning. Large itemsets.
 
 A high-level overview of our model architecture is shown in Fig. \ref{fig:ModelArch}. 
 
+\subsection{Embedding Symbols as Vectors}
+At the first stage of the model, user and item symbols are mapped to real  vectors (embeddings). This mapping is implemented as a table lookup where each user $u \in U$ is associated with a corresponding vector $\mat{x}_u$. Likewise, each item $i \in I$ has a associated $\mat{x}_i$. The user's interaction history at time $t$, $V_{u,t} = (i_{u,t_s}, i_{u,t_s + 1}, \dots, i_{u,t})$ is transformed to $X_{u,t} = (\mat{x}_{u,t_s}, \mat{x}_{u,t_s + 1}, \dots, \mat{x}_{u,t})$. 
+
 \subsection{Memory: Gated Recurrent Units}
 \begin{figure}
 \centering
 	\includegraphics[width=8cm]{images/GRU}
-	\caption{The model's memory is composed of Gated Recurrent Units (GRU) cells that selectively update or reset their hidden states via two gates. An interaction history is fed an item at a time into the cell and the update gate $z$ determines whether the internal state $h$ is replaced by a new hidden state $\tilde{h}$. The reset gate $r$ controls whether to disregard the previous hidden state. Although sometimes shown as discrete gates (as above), the updates/resets are weighted averages using parameters learnt from data. After the history is fed, and the final state is relayed to higher layers. See text for  details. }
+	\caption{The model's memory is composed of Gated Recurrent Units (GRU) cells that selectively update or reset their hidden states via two gates. An interaction history is fed an item at a time into the cell and the update gate $z$ determines whether the internal state $h$ is replaced by a new hidden state $\tilde{h}$. The reset gate $r$ controls whether to disregard the previous hidden state. Although sometimes shown as discrete gates (as above), the updates/resets are weighted averages using parameters learnt from data. After the history is fed, and the final hidden state is relayed to higher layers.}
 	\label{fig:GRU}
 \end{figure}
 
-In our model, we use the Gated Recurrent Unit (GRU)~\cite{Cho2014} (Fig. \ref{fig:GRU}), a streamlined variant of Long Short-Term Memory (LSTM)~\cite{Hochreiter1997}, that has become increasingly popular due to its simplicity and performance~\cite{jozefowicz2015empirical}. In traditional RNN models, a cell lacked control over the evolution of its hidden state. In contrast, the GRU learns to operate two internal structures---the update and reset gates---that allow it to control what to remember and forget. More formally, consider that a cell $j$ has state $h_{t-1}^{(j)}$ and receives a new input $\mathbf{x}_t$. The cell's updated internal state is given by
+As memory, we use the Gated Recurrent Unit (GRU)~\cite{Cho2014} (Fig. \ref{fig:GRU}), a streamlined variant of Long Short-Term Memory (LSTM)~\cite{Hochreiter1997}, that has become increasingly popular due to its simplicity and performance~\cite{jozefowicz2015empirical}. In traditional RNN models, a cell lacked control over the evolution of its hidden state. In contrast, the GRU learns to operate two internal structures---the update and reset gates---that allow it to control what to remember and forget. More formally, consider that a cell $j$ has state $h_{t-1}^{(j)}$ and receives a new input $\mathbf{x}_t$. The cell's updated internal state is given by
 \begin{align}
 	h_t^{(j)} = (1-z_t^{(j)})h^{(j)}_{t-1} + z_t^{(j)}\tilde{h}_{t}^{(j)},
 \end{align}
@@ -310,25 +313,19 @@ where $\odot$ denotes element-wise multiplication. The cell's reset gate $r^{(j)
 \begin{align}
 	r^{(j)}_t = \textrm{sigm}\big([\mat{W}_r\mat{x}_{t} + \mat{U}_r\mat{h}_{t-1})]_j\big)
 \end{align}
-The previous hidden state is effectively dropped when the reset gate's value nears zero, and as such, cells that learn short-term dependencies will have active reset gates. In comparison, cells that learn to model long-term dependencies will have active update gates~\cite{Cho2014}. 
+The previous hidden state is effectively dropped when the reset gate's value nears zero, and as such, cells that learn short-term dependencies  have active reset gates. In comparison, cells that learn to model long-term dependencies will have active update gates~\cite{Cho2014}. Our model uses an array of $n_\textsc{gru}$; the number of layers can also be varied but we found a single layer sufficient for our experiments. Effectively, the memory cells ``compress'' the user interaction history $X_{u,t} = (\mat{x}_{u,t_s}, \mat{x}_{u,t_s + 1}, \dots, \mat{x}_{u,t})$ to a real vector $\mat{h}_{u,t}$.
 
 \subsection{Item Recommendation}
-Given a user $u$ and the memory state $h_{u,t}$, we would like to  our model to recommend an item $i \in I$ that would interest the user. It is common to perform this item recommendation using dot products between embeddings; this can be interpreted as finding items with maximal cosine similarity. Here, we experiment with recommendation via a multi-layer perceptron (MLP) as the top layer component. Although we lose interpretability of the embeddings, this approach has the advantage of being able to (i) capture non-linear interactions between the embeddings, and (ii) handle multiple input sources (user, item history, next item and potentially others) naturally via concatenation and projection. 
+Given the embedded user $\mat{x}_u$ and memory state $\mat{h}_{u,t}$, our model seeks to recommend an item $i \in I$. It is common to perform this item recommendation using dot products between embeddings; this can be interpreted as finding items with maximal cosine similarity. Here, we experiment with recommendation via multiple hidden layers with nonlinear activation units, with a softmax classifier at the top. Although we lose some ``spatial'' interpretability, this approach has the advantage of being able to (i) capture non-linear interactions between the embedded objects, and (ii) handle multiple input sources---user, interaction history, and potentially other features---naturally via concatenation and projection. These hidden layers further transform the inputs to a combined representation $\hatmat{x}_{u,t}$ which is used to perform the final classification.
    
 \subsection{Training via Candidate Sampling}
-The entire model---embeddings, GRU memory cells and MLP---can be trained via standard backpropagation using an appropriate loss functions. However, standard loss functions, such as the softmax and logistic, become computationally infeasible to compute the unnormalized probabilities for the large item sets $I$ common in recommendation settings.
+The entire model---embeddings, GRU cells and hidden layers---can be trained via standard backpropagation using an appropriate loss function. Unfortunately, standard loss functions, such as the softmax and logistic, become computationally infeasible to compute given the large item sets $I$ common in recommendation settings.
 
-To address this problem, we train our models using \emph{candidate sampling}~\cite{TFCandidateSampling}---the loss is evaluated against a small set of candidate or contrastive classes instead of over $I$. In our preliminary experiments, the recently-proposed sampled softmax~\cite{Jean2015} worked best (compared to Noise Contrastive Estimation and the sampled logistic) and is given by
+To address this problem, we train our models using \emph{candidate sampling}~\cite{TFCandidateSampling}---the loss is evaluated against a small set of candidate or contrastive classes instead of over $I$. In  this work, we used the recently-proposed sampled softmax used in neural translation~\cite{Jean2015}\footnote{The sampled softmax achieved better scores compared to Noise Contrastive Estimation and the sampled logistic in our preliminary trials.} and a simple uniform distribution $Q(i|\hatmat{x}_{u,t}) = 1/I$ to form the candidate set $S$, resulting in an augmented loss function,
 \begin{align}
-	\mathcal{L}_{\textsc{sm}}
+	l_{\textsc{sm}}(\hatmat{x}_{u,t}, y) = -\hatmat{x}^{(y)}_{u,t} - \log{|I|} + \log \left( \sum_{i'\in S} \exp(\hatmat{x}^{(i')}_{u,t} - \log|I|)  \right) 
 \end{align}
-
-Given our context $x_{u,t} = (u, h_{u,t})$, we would like to train our model to predict relative log probabilities of an item, $F(x,y) = \log p(y|x_{u,t}) + C(x) \propto \log p(y|x_{u,t})$ where $C(x)$ does not depend on $y$. The canonical log softmax loss is given by:
-\begin{align}
-	\mathcal{L}_{\textsc{sm}} = \sum_j -H(x_{u,t}, i_{t+1}) + \log \left( \sum_{i'} \exp H(x_{u,t}, i') \right)
-\end{align}
-where 
-
+where $y = i_{u,t+1}$ is the item observed at time $t+1$ and $\hatmat{x}_{u,t}^{(i')}$ is the top-level combined representation obtained by feeding the model with the tuple $(u, V_{u,t}, i')$.
 
 \section{Experiments}
 In this section, we report on experiments comparing the DRNN to a baseline Markov chain (MC) and the tensor Factorized Personalized Markov Chain (FPMC)~\cite{Rendle2010}. In addition, we constructed a deep neural network (DNN) identical to the DRNN, but without the memory cells; this allowed us to isolate the effect of capturing long-term temporal dependencies on the quality of recommendations. We have made source code of our FPMC implementation (in Julia) and deep models (in Python/Tensorflow) available at \url{http://xxx.xxx.xxx/xxx}.
@@ -340,10 +337,10 @@ We adopt the experimental setup outlined in \cite{Rendle2010};  given users and 
 \noindent\textbf{Datasets:} We used two moderately-sized datasets: the Microsoft Web Data~\cite{Breese1998} and the educational 2015 ASSISTments Skill Builder~\cite{Assistmentsdata} datasets. Following \cite{Rendle2010}, users that did not interact with at least 10 items were dropped. The filtered MSWeb contained 502 users, 231 items (web pages) and 6,623 interactions, and  Assistments'15 contained 3315 users, 100 items (problem sets) and 51,318 interactions. 
 
 \vspace{2mm}
-\noindent\textbf{Model Parameterization:} Embeddings of size 128 were used for all models (except MC). For FPMC, we performed a grid-search over learning rates ($\{10^{-3},10^{-2},10^{-1}\}$) and regularization parameters ($\{10^{-4},10^{-3},10^{-2}\}$), and selected the parameters that gave the best HLU scores on the validation set after $2\times10^5$ training iterations. To prevent inconsistencies due to initialization, we re-initialized the model 5 times and trained for $1\times10^5$ iterations, before taking the best performing model for continued training. For the deep models, we used a single-layer of 128 GRU cells, three-hidden layers of size 128 for the MLP, tanh activation units\footnote{We also ran experiments with ReLU units but tanh performed better.}, and low dropout rates of 5\% for all layers. 
+\noindent\textbf{Model Parameterization:} Embeddings of size 128 were used for all models (except MC). For FPMC, we performed a grid-search over learning rates ($\{10^{-3},10^{-2},10^{-1}\}$) and regularization parameters ($\{10^{-4},10^{-3},10^{-2}\}$), and selected the parameters that gave the best HLU scores on the validation set after $2\times10^5$ training iterations. To prevent inconsistencies due to initialization, we re-initialized the model 5 times and trained for $1\times10^5$ iterations, before taking the best performing model for continued training. For the deep models, we used a single-layer of 128 GRU cells, three-hidden layers of size 128 for the classifier with tanh activation units\footnote{We also ran experiments with ReLU units but tanh performed better.}, and low dropout rates of 5\% for all layers. 
 
 \vspace{2mm}
-\noindent\textbf{Model Training and Testing:} To test the variability of the methods, we performed a variant of 10-fold cross-validation where 90\% of the \emph{last novel} items were used for testing and 10\% for validation. For each test partition, we compute the average scores across all sequences. Early stopping was used when training FPMC, DNN and DRNN, i.e., training was halted when the HLU computed on the validation set did not improve after 1000 positive training samples. A maximum of $2\times 10^6$ iterations was permitted for FPMC, and $2\times 10^4$ iterations for both DNN and DRNN. Optimization of the deep models was performed using the Adam algorithm~\cite{Kingma2015} with a learning rate of $10^{-3}$ with 100-sample mini-batches and 16 negative samples.
+\noindent\textbf{Model Training and Testing:} To test the variability of the methods, we performed a variant of 10-fold cross-validation where 90\% of the \emph{last novel} items were used for testing and 10\% for validation. For each test partition, we compute the average scores across all sequences. Early stopping was used when training FPMC, DNN and DRNN, i.e., training was halted when the HLU computed on the validation set did not improve after 1000 positive training samples. A maximum of $2\times 10^6$ iterations was permitted for FPMC, and $2\times 10^4$ iterations for both DNN and DRNN. Optimization of the deep models was performed using the Adam algorithm~\cite{Kingma2015} with a learning rate of $10^{-3}$ with 100-sample mini-batches and 16 sampled candidate classes.
 
 \subsection{Performance Results}
 \begin{figure}
@@ -358,12 +355,12 @@ Turning our attention to the other methods, the DNN and FPMC appear to perform s
 \subsection{Sequence Length Effects}
 \begin{figure}
 \centering
-\includegraphics[width=7.5cm]{images/SeqLenPerfAnnotated}		
+\includegraphics[width=8cm]{images/SeqLenPerfAnnotated}		
 \caption{(Top) HLU scores with different sequence lengths. Using memory was particularly effective for short and medium length sequences. All four models were hampered by longer sequences, possibly due to data sparsity.  (Bottom) The histogram plots show that datasets comprised mostly short sequences and long sequences were rare.}
 \label{fig:SeqLenResults}
 \end{figure}
 
-To better understand the observed performance differences, we binned the sequences into three partitions: short, medium and long sequences for each dataset. The average HLU scores over the sequences in each bin are shown in Fig \ref{fig:SeqLenResults}. We noted a decrease in HLU as length increased, i.e., recommending novel items for longer sequences was more difficult. This was not an side-effect of the task, since filtering out non-novel items from the ranking computation did not significantly change the relative score differences. Instead, we posit that the downward trend was caused by data sparsity---the datasets are dominated by shorter sequences, as illustrated by the histogram plots in Fig. \ref{fig:SeqLenResults}. Setting aside this effect, we noted that the performance gains from using memory was achieved on the short and medium length sequences. On the longer sequences, performance was comparable to Markov methods (care should be taken when comparing these scores since the set of sequences they correspond to is small). 
+To better understand the observed performance differences, we binned the sequences into three partitions: short, medium and long sequences for each dataset. The average HLU scores in each bin (Fig \ref{fig:SeqLenResults}) fell as length increased, i.e., recommending novel items for longer sequences was more difficult. This was not an side-effect of the task, since filtering out non-novel items from the ranking computation did not significantly change the relative score differences. Instead, the downward trend was possibly caused by data sparsity---the datasets are dominated by shorter sequences, as illustrated by the histogram plots in Fig. \ref{fig:SeqLenResults}. Setting aside this effect, the gains from using memory were achieved on the short and medium length sequences. On longer sequences, performance was comparable to the Markov methods (care should be taken when comparing these scores since the set of sequences they correspond to is small). 
 
 \subsection{Embedding Size Effects}
 \begin{figure}
@@ -372,7 +369,7 @@ To better understand the observed performance differences, we binned the sequenc
 \caption{DRNN and FPMC performance with different embedding sizes (32, 64 and 128). DRNN performance improved more sharply with larger embeddings on both datasets, compared to FPMC. At the smallest embedding of 32, FPMC outperformed DRNN on Assistments'15, but otherwise, DRNN achieved the higher HLU and F1 scores.}
 \label{fig:EmbResults}
 \end{figure}
-In preliminary trials, we found DRNN to be highly influenced by the embedding and memory cell sizes. To further evaluate this observation, we conducted additional runs with FPMC and DRNN with embeddings of length 32, 64 and 128. Note that to ease comparison, the memory cell and embedding sizes were set equal. Fig \ref{fig:EmbResults} shows the resultant HLU and F1 scores on both datasets. As expected, the performance of the neural model increased with embedding size, but the relative differences were more drastic for DRNN compared to FPMC. Indeed, at the smallest embedding size of 32, FPMC significantly outperformed DRNN on Assistments'15, suggesting it is important to have  embedding/memory large enough to garner the positive effects of memory. This should be balanced against computational costs since some effect of diminishing returns was observed; on the MSWeb dataset, the increase from 64 to 128 only led to a marginal $\sim 4\%$ increase in HLU score.
+In preliminary trials, we found DRNN to be highly influenced by the embedding and memory cell sizes. To further evaluate this observation, we conducted additional runs with FPMC and DRNN with embeddings of length 32, 64 and 128. To ease comparison, the memory cell and embedding sizes were set equal. Fig \ref{fig:EmbResults} shows DRNN's performance improved with embedding size, but the relative differences were more drastic compared to FPMC. At the smallest embedding size of 32, FPMC significantly outperformed DRNN on Assistments'15, suggesting it is important to have embedding/memory large enough to garner the positive effects of memory. This should be balanced against computational cost in view of diminishing returns; on the MSWeb dataset, the increase from 64 to 128 only led to a marginal $\sim 4\%$ increase in HLU score.
 
 
 %
