@@ -370,9 +370,9 @@ Given the embedded user $\mat{x}_u$ and memory state $\mat{h}_{u,t}$, we seek to
    
 \subsection{Training via Candidate Sampling}
 \label{sec:training}
-The entire model---embeddings, GRU cells and hidden layers---can be trained via standard backpropagation using an appropriate loss function. Unfortunately, standard loss functions, such as the softmax and logistic, become computationally infeasible to compute given the large item sets $I$ common in recommendation settings.
+The entire model---embeddings, GRU cells and hidden layers---can be trained via standard backpropagation using an appropriate loss function. Unfortunately, standard loss functions, such as the softmax and logistic, become computationally infeasible  given the large item sets $I$ common in recommendation settings.
 
-To address this problem, we train the DRNN using {candidate sampling}---the loss is evaluated against a small set of candidate or contrastive classes instead of over $I$. In  this work, we used the recently-proposed sampled softmax used in neural translation~\cite{Jean2015}\footnote{The sampled softmax achieved better scores compared to Noise Contrastive Estimation and the sampled logistic in our preliminary trials.} and a simple uniform distribution $Q(i|\hatmat{x}_{u,t}) = 1/I$ to form the candidate set $S$, resulting in an augmented loss function,
+To address this problem, we train the DRNN using {candidate sampling}---the loss is evaluated against a small set of candidate or contrastive classes instead of over $I$. In  this work, we used the recently-proposed sampled softmax used in neural translation~\cite{Jean2015}\footnote{The sampled softmax achieved better scores compared to Noise Contrastive Estimation and the sampled logistic in our preliminary trials.} and a simple uniform distribution $Q(i|\hatmat{x}^{(j)}_{u,t}) = 1/|I|$ to form the candidate set $S$, which yields an augmented loss function,
 \begin{align}
 	l_{\textsc{sm}}(\hatmat{x}_{u,t}, y) = -\mat{w}_c^{\top}\hatmat{x}^{(y)}_{u,t} + \log \frac{\sum_{j\in S} \exp(\mat{w}_c^{\top}\hatmat{x}^{(j)}_{u,t} - \log|I|)}{|I|} 
 \end{align}
